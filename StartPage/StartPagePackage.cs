@@ -1,13 +1,18 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
+using System.Xml;
+using EnvDTE;
 using Microsoft.Win32;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
+using Process = System.Diagnostics.Process;
 
 namespace RogerLipscombe.StartPage
 {
@@ -37,6 +42,7 @@ namespace RogerLipscombe.StartPage
     {
         private IVsSolution _solution;
         private uint _dwCookie;
+        private Process _webServerProcess;
 
         /// <summary>
         /// Default constructor of the package.
@@ -153,7 +159,158 @@ namespace RogerLipscombe.StartPage
 
         private void ViewWelcomePage()
         {
-            ShowMessageBox("StartPage", "Hello World");
+            try
+            {
+                ViewWelcomePageThrows();
+            }
+            catch (Exception ex)
+            {
+                ShowMessageBox("Whoops", ex.Message);
+            }
+        }
+
+        private void ViewWelcomePageThrows()
+        {
+// Figure out where the .SLN file lives.
+            var dte = (DTE) GetService(typeof (DTE));
+            var solutionFileName = GetSolutionFileName(dte);
+            if (solutionFileName == null)
+                return;
+
+            var solutionFolder = Path.GetDirectoryName(solutionFileName);
+
+            // Figure out where the web application binaries are.
+            // TODO: Do this properly.
+            var webApplicationSourceRoot = @"C:\Users\roger\Source\vs-start-page\StartPage.WebApplication";
+
+            // Copy the web application binaries to a new temporary location.
+            var instanceDirectory = GetWebAppInstanceDirectory(solutionFileName);
+            CopyWebAppFiles(webApplicationSourceRoot, instanceDirectory);
+
+            // TODO: Can we avoid doing this by (somehow) configuring application root in Web.config?
+
+            // Write the solution path to Web.config.
+            ConfigureWebAppInstance(instanceDirectory, solutionFolder);
+
+            // Figure out a port number.
+            var random = new Random();
+            int port = random.Next(10000, short.MaxValue);
+            Debug.WriteLine("Using port number '{0}'", port);
+
+            // Fire up IIS Express.
+            var fileName = GetIisExpressFileName();
+            var startInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = string.Format("/path:\"{0}\" /port:{1}", instanceDirectory, port),
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+
+            // TODO: How to detect a port number clash?
+            _webServerProcess = Process.Start(startInfo);
+            Debug.WriteLine("IIS Express started ({0} {1}). Process ID = {2}. Main Window = {3}.",
+                            startInfo.FileName, startInfo.Arguments,
+                            _webServerProcess.Id, _webServerProcess.MainWindowHandle);
+
+            // Open the web browser.
+            // TODO: How do we (should we?) bring it to the front?
+            // TODO: If we don't bring it to the front, how do we bring it to the user's attention?
+            string url = string.Format("http://localhost:{0}/", port);
+            Debug.WriteLine("Navigating to '{0}'", url);
+            dte.ItemOperations.Navigate(url);
+        }
+
+        private static void ConfigureWebAppInstance(string instanceDirectory, string solutionFolder)
+        {
+            try
+            {
+                const string xpath = "//configuration/appSettings/add[@key='RootDirectory']/@value";
+
+                var configurationFileName = Path.Combine(instanceDirectory, "Web.config");
+                Debug.WriteLine(
+                    "Updating configuration file '{0}'. Setting RootDirectory to '{1}'.",
+                    configurationFileName, solutionFolder);
+
+                var configuration = new XmlDocument();
+
+                configuration.Load(configurationFileName);
+                var nsmgr = new XmlNamespaceManager(configuration.NameTable);
+                var rootDirectoryNode = configuration.SelectSingleNode(xpath, nsmgr);
+                if (rootDirectoryNode == null)
+                {
+                    throw new ConfigurationErrorsException(
+                        string.Format("Cannot find node '{0}' in configuration file '{1}'.", xpath,
+                                      configurationFileName));
+                }
+
+                rootDirectoryNode.Value = solutionFolder;
+                configuration.Save(configurationFileName);
+            }
+            catch (Exception ex)
+            {
+                throw new WebAppInstanceConfigurationException(instanceDirectory, ex);
+            }
+        }
+
+        private static string GetIisExpressFileName()
+        {
+            string installPath;
+            using (var registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\IISExpress\8.0"))
+            {
+                if (registryKey == null)
+                    throw new Exception("Cannot find IIS Express installation path.");
+
+                installPath = (string) registryKey.GetValue("InstallPath");
+                Debug.WriteLine("IIS Express InstallPath = '{0}'", installPath);
+            }
+
+            var fileName = Path.Combine(installPath, "iisexpress.exe");
+            return fileName;
+        }
+
+        private static void CopyWebAppFiles(string webApplicationSourceRoot, string temporaryPath)
+        {
+            var webApplicationFiles = Directory.EnumerateFiles(webApplicationSourceRoot, "*", SearchOption.AllDirectories);
+            foreach (var webApplicationFile in webApplicationFiles)
+            {
+                var sourceFileName = webApplicationFile;
+                var relativeFileName = webApplicationFile.Substring(webApplicationSourceRoot.Length + 1);
+                var destinationFileName = Path.Combine(temporaryPath, relativeFileName);
+                var destinationDirectory = Path.GetDirectoryName(destinationFileName);
+                if (!Directory.Exists(destinationDirectory))
+                    Directory.CreateDirectory(destinationDirectory);
+
+                Debug.WriteLine("Copying '{0}' to '{1}'...", sourceFileName, destinationFileName);
+                File.Copy(sourceFileName, destinationFileName, overwrite: true);
+            }
+        }
+
+        private static string GetWebAppInstanceDirectory(string solutionFileName)
+        {
+            // TODO: Put the temporary files in the TEMP folder.
+            // TODO: temporary folder should be a hash of the solution path, so that we can avoid copying the binaries if they're already there.
+            // Idea: if there's a foo.sln.welcomepage file, parse it to look for a port number; this'll allow users on the same team to use a fixed port number,
+            // making it easier to share URLs to bits of the documentation.
+            var solutionFolder = Path.GetDirectoryName(solutionFileName);
+            var instanceDirectory = Path.Combine(solutionFolder, "_StartPage");
+            if (!Directory.Exists(instanceDirectory))
+                Directory.CreateDirectory(instanceDirectory);
+
+            Debug.WriteLine("Using instance directory = '{0}'", instanceDirectory);
+            return instanceDirectory;
+        }
+
+        private static string GetSolutionFileName(DTE dte)
+        {
+            if (dte.Solution == null)
+                return null;
+
+            var solutionFileName = dte.Solution.FullName;
+            if (string.IsNullOrWhiteSpace(solutionFileName))
+                return null;
+
+            Debug.WriteLine("solutionFileName = '{0}'.", solutionFileName);
+            return solutionFileName;
         }
 
         public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel)
@@ -168,7 +325,29 @@ namespace RogerLipscombe.StartPage
 
         public int OnAfterCloseSolution(object pUnkReserved)
         {
+            if (_webServerProcess != null)
+            {
+                Debug.WriteLine("IIS Express: Process ID = {0}. Main Window = {1}.",
+                                _webServerProcess.Id, _webServerProcess.MainWindowHandle);
+
+                // BUG: This doesn't actually work. MainWindowHandle is zero.
+                _webServerProcess.CloseMainWindow();
+                _webServerProcess.Kill();
+
+                _webServerProcess.Dispose();
+            }
+
+            // TODO: If the web browser is open, and pointing at the readme, close the window.
+
             return VSConstants.S_OK;
+        }
+    }
+
+    internal class WebAppInstanceConfigurationException : Exception
+    {
+        public WebAppInstanceConfigurationException(string instanceDirectory, Exception innerException)
+            : base(string.Format("Failed to configure web app instance at '{0}'.", instanceDirectory), innerException)
+        {
         }
     }
 }
