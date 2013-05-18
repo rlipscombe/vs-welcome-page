@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Configuration;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -13,29 +12,13 @@ using EnvDTE;
 using Microsoft.Win32;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Process = System.Diagnostics.Process;
 
 namespace RogerLipscombe.StartPage
 {
-    /// <summary>
-    /// This is the class that implements the package exposed by this assembly.
-    ///
-    /// The minimum requirement for a class to be considered a valid package for Visual Studio
-    /// is to implement the IVsPackage interface and register itself with the shell.
-    /// This package uses the helper classes defined inside the Managed Package Framework (MPF)
-    /// to do it: it derives from the Package class that provides the implementation of the 
-    /// IVsPackage interface and uses the registration attributes defined in the framework to 
-    /// register itself and its components with the shell.
-    /// </summary>
-    // This attribute tells the PkgDef creation utility (CreatePkgDef.exe) that this class is
-    // a package.
     [PackageRegistration(UseManagedResourcesOnly = true)]
-    // This attribute is used to register the information needed to show this package
-    // in the Help/About dialog of Visual Studio.
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
-    // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
     // We need to load early enough to be able to hook solution events.
     // VSConstants.UICONTEXT_NoSolution
@@ -48,31 +31,31 @@ namespace RogerLipscombe.StartPage
         private Process _webServerProcess;
         private int _port;
 
-        /// <summary>
-        /// Default constructor of the package.
-        /// Inside this method you can place any initialization code that does not require 
-        /// any Visual Studio service because at this point the package object is created but 
-        /// not sited yet inside Visual Studio environment. The place to do all the other 
-        /// initialization is the Initialize method.
-        /// </summary>
-        public StartPagePackage()
+        private static void Log(string message)
         {
-            Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
+            Debug.WriteLine(message);
         }
 
+        private static void Log(string format, object arg0)
+        {
+            var message = string.Format(format, arg0);
+            Log(message);
+        }
 
+        private static void Log(string format, object arg0, object arg1)
+        {
+            var message = string.Format(format, arg0, arg1);
+            Log(message);
+        }
 
-        /////////////////////////////////////////////////////////////////////////////
-        // Overridden Package Implementation
-        #region Package Members
+        private static void Log(string format, params object[] args)
+        {
+            var message = string.Format(format, args);
+            Log(message);
+        }
 
-        /// <summary>
-        /// Initialization of the package; this method is called right after the package is sited, so this is the place
-        /// where you can put all the initialization code that rely on services provided by VisualStudio.
-        /// </summary>
         protected override void Initialize()
         {
-            Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
 
             AddMenuCommands();
@@ -103,8 +86,6 @@ namespace RogerLipscombe.StartPage
             var menuItem = new MenuCommand((sender, e) => ViewWelcomePage(), menuCommandId);
             mcs.AddCommand(menuItem);
         }
-
-        #endregion
 
         private void ShowMessageBox(string pszTitle, string pszText)
         {
@@ -199,7 +180,7 @@ namespace RogerLipscombe.StartPage
                 // Figure out a port number.
                 var random = new Random();
                 _port = random.Next(10000, short.MaxValue);
-                Debug.WriteLine("Using port number '{0}'", _port);
+                Log("Using port number '{0}'", _port);
 
                 // Fire up IIS Express.
                 var fileName = GetIisExpressFileName();
@@ -212,7 +193,7 @@ namespace RogerLipscombe.StartPage
 
                 // TODO: How to detect a port number clash?
                 _webServerProcess = Process.Start(startInfo);
-                Debug.WriteLine("IIS Express started ({0} {1}). Process ID = {2}. Main Window = {3}.",
+                Log("IIS Express started ({0} {1}). Process ID = {2}. Main Window = {3}.",
                                 startInfo.FileName, startInfo.Arguments,
                                 _webServerProcess.Id, _webServerProcess.MainWindowHandle);
             }
@@ -221,7 +202,7 @@ namespace RogerLipscombe.StartPage
             // TODO: How do we (should we?) bring it to the front?
             // TODO: If we don't bring it to the front, how do we bring it to the user's attention?
             string url = string.Format("http://localhost:{0}/", _port);
-            Debug.WriteLine("Navigating to '{0}'", url);
+            Log("Navigating to '{0}'", url);
             dte.ItemOperations.Navigate(url);
         }
 
@@ -232,7 +213,7 @@ namespace RogerLipscombe.StartPage
                 const string xpath = "//configuration/appSettings/add[@key='RootDirectory']/@value";
 
                 var configurationFileName = Path.Combine(instanceDirectory, "Web.config");
-                Debug.WriteLine(
+                Log(
                     "Updating configuration file '{0}'. Setting RootDirectory to '{1}'.",
                     configurationFileName, solutionFolder);
 
@@ -266,7 +247,7 @@ namespace RogerLipscombe.StartPage
                     throw new Exception("Cannot find IIS Express installation path.");
 
                 installPath = (string) registryKey.GetValue("InstallPath");
-                Debug.WriteLine("IIS Express InstallPath = '{0}'", installPath);
+                Log("IIS Express InstallPath = '{0}'", installPath);
             }
 
             var fileName = Path.Combine(installPath, "iisexpress.exe");
@@ -285,9 +266,14 @@ namespace RogerLipscombe.StartPage
                 if (!Directory.Exists(destinationDirectory))
                     Directory.CreateDirectory(destinationDirectory);
 
-                Debug.WriteLine("Copying '{0}' to '{1}'...", sourceFileName, destinationFileName);
-                if (File.GetLastWriteTimeUtc(sourceFileName) > File.GetLastWriteTimeUtc(destinationFileName))
+                if (!File.Exists(destinationFileName) ||
+                    (File.GetLastWriteTimeUtc(sourceFileName) > File.GetLastWriteTimeUtc(destinationFileName)))
+                {
+                    Log("Copying '{0}' to '{1}'...", sourceFileName, destinationFileName);
                     File.Copy(sourceFileName, destinationFileName, overwrite: true);
+                }
+                else
+                    Log("File '{0}' is up-to-date.", destinationFileName);
             }
         }
 
@@ -307,7 +293,7 @@ namespace RogerLipscombe.StartPage
             var instanceKey = GetInstanceKey(solutionFileName);
 
             var instanceDirectory = Path.Combine(tempPath, instanceKey);
-            Debug.WriteLine("Using instance directory = '{0}'", instanceDirectory);
+            Log("Using instance directory = '{0}'", instanceDirectory);
             return instanceDirectory;
         }
 
@@ -359,7 +345,7 @@ namespace RogerLipscombe.StartPage
             if (string.IsNullOrWhiteSpace(solutionFileName))
                 return null;
 
-            Debug.WriteLine("solutionFileName = '{0}'.", solutionFileName);
+            Log("solutionFileName = '{0}'.", solutionFileName);
             return solutionFileName;
         }
 
@@ -377,7 +363,7 @@ namespace RogerLipscombe.StartPage
         {
             if (_webServerProcess != null)
             {
-                Debug.WriteLine("IIS Express: Process ID = {0}. Main Window = {1}.",
+                Log("IIS Express: Process ID = {0}. Main Window = {1}.",
                                 _webServerProcess.Id, _webServerProcess.MainWindowHandle);
 
                 IntPtr window = NativeMethods.GetTopWindow(IntPtr.Zero);
