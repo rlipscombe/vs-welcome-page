@@ -193,8 +193,6 @@ namespace RogerLipscombe.StartPage
                 var instanceDirectory = GetWebAppInstanceDirectory(solutionFileName);
                 CopyWebAppFiles(webApplicationSourceRoot, instanceDirectory);
 
-                // TODO: Can we avoid doing this by (somehow) configuring application root in Web.config?
-
                 // Write the solution path to Web.config.
                 ConfigureWebAppInstance(instanceDirectory, solutionFolder);
 
@@ -288,8 +286,8 @@ namespace RogerLipscombe.StartPage
                     Directory.CreateDirectory(destinationDirectory);
 
                 Debug.WriteLine("Copying '{0}' to '{1}'...", sourceFileName, destinationFileName);
-                // TODO: Symlink, rather than copy?
-                File.Copy(sourceFileName, destinationFileName, overwrite: true);
+                if (File.GetLastWriteTimeUtc(sourceFileName) > File.GetLastWriteTimeUtc(destinationFileName))
+                    File.Copy(sourceFileName, destinationFileName, overwrite: true);
             }
         }
 
@@ -382,9 +380,22 @@ namespace RogerLipscombe.StartPage
                 Debug.WriteLine("IIS Express: Process ID = {0}. Main Window = {1}.",
                                 _webServerProcess.Id, _webServerProcess.MainWindowHandle);
 
-                // BUG: This doesn't actually work. MainWindowHandle is zero.
-                _webServerProcess.CloseMainWindow();
-                _webServerProcess.Kill();
+                IntPtr window = NativeMethods.GetTopWindow(IntPtr.Zero);
+                while (window != IntPtr.Zero)
+                {
+                    uint processId;
+                    NativeMethods.GetWindowThreadProcessId(window, out processId);
+                    if (processId == _webServerProcess.Id)
+                    {
+                        NativeMethods.PostMessage(new HandleRef(null, window), NativeMethods.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
+                        break;
+                    }
+
+                    window = NativeMethods.GetWindow(window, NativeMethods.GW_NEXT);
+                }
+
+                if (!_webServerProcess.WaitForExit(1000))
+                    _webServerProcess.Kill();
 
                 _webServerProcess.Dispose();
             }
@@ -393,6 +404,25 @@ namespace RogerLipscombe.StartPage
 
             return VSConstants.S_OK;
         }
+    }
+
+    internal static class NativeMethods
+    {
+        public static uint WM_QUIT = 0x12;
+        public static uint GW_NEXT = 2;
+
+        [DllImport("user32.dll", SetLastError = true)]
+        internal extern static IntPtr GetTopWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        internal extern static uint GetWindowThreadProcessId(IntPtr hwnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal extern static bool PostMessage(HandleRef hWnd, uint message, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        internal extern static IntPtr GetWindow(IntPtr hWnd, uint uCmd);
     }
 
     internal class WebAppInstanceConfigurationException : Exception

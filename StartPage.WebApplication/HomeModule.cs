@@ -14,7 +14,7 @@ namespace StartPage.WebApplication
     public class HomeModule : NancyModule
     {
         private readonly string _rootDirectory;
-        private IMarkdownService _converter;
+        private readonly IMarkdownService _converter;
 
         public HomeModule()
         {
