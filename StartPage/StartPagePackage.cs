@@ -29,9 +29,15 @@ namespace RogerLipscombe.StartPage
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
+    // We need to load early enough to be able to hook solution events.
+    // VSConstants.UICONTEXT_NoSolution
+    [ProvideAutoLoad("ADFC4E64-0397-11D1-9F4E-00A0C911004F")]
     [Guid(GuidList.guidStartPagePkgString)]
-    public sealed class StartPagePackage : Package
+    public sealed class StartPagePackage : Package, IVsSolutionEvents
     {
+        private IVsSolution _solution;
+        private uint _dwCookie;
+
         /// <summary>
         /// Default constructor of the package.
         /// Inside this method you can place any initialization code that does not require 
@@ -59,42 +65,110 @@ namespace RogerLipscombe.StartPage
             Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
 
-            // Add our command handlers for menu (commands must exist in the .vsct file)
-            OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if ( null != mcs )
-            {
-                // Create the command for the menu item.
-                CommandID menuCommandID = new CommandID(GuidList.guidStartPageCmdSet, (int)PkgCmdIDList.cmdidViewWelcomePage);
-                MenuCommand menuItem = new MenuCommand(MenuItemCallback, menuCommandID );
-                mcs.AddCommand( menuItem );
-            }
+            AddMenuCommands();
+
+            _solution = GetService(typeof (SVsSolution)) as IVsSolution;
+            if (_solution != null)
+                _solution.AdviseSolutionEvents(this, out _dwCookie);
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_solution != null && _dwCookie != 0)
+                _solution.UnadviseSolutionEvents(_dwCookie);
+            _dwCookie = 0;
+        
+            base.Dispose(disposing);
+        }
+
+        private void AddMenuCommands()
+        {
+            // Add our command handlers for menu (commands must exist in the .vsct file)
+            var mcs = GetService(typeof (IMenuCommandService)) as OleMenuCommandService;
+            if (mcs == null)
+                return;
+
+            // Create the command for the menu item.
+            var menuCommandId = new CommandID(GuidList.guidStartPageCmdSet, (int) PkgCmdIDList.cmdidViewWelcomePage);
+            var menuItem = new MenuCommand((sender, e) => ViewWelcomePage(), menuCommandId);
+            mcs.AddCommand(menuItem);
+        }
+
         #endregion
 
-        /// <summary>
-        /// This function is the callback used to execute a command when the a menu item is clicked.
-        /// See the Initialize method to see how the menu item is associated to this function using
-        /// the OleMenuCommandService service and the MenuCommand class.
-        /// </summary>
-        private void MenuItemCallback(object sender, EventArgs e)
+        private void ShowMessageBox(string pszTitle, string pszText)
         {
-            // Show a Message Box to prove we were here
-            IVsUIShell uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
+            IVsUIShell uiShell = (IVsUIShell) GetService(typeof (SVsUIShell));
             Guid clsid = Guid.Empty;
             int result;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
-                       0,
-                       ref clsid,
-                       "StartPage",
-                       string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.ToString()),
-                       string.Empty,
-                       0,
-                       OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                       OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-                       OLEMSGICON.OLEMSGICON_INFO,
-                       0,        // false
-                       out result));
+                0,
+                ref clsid,
+                pszTitle,
+                pszText,
+                string.Empty,
+                0,
+                OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
+                OLEMSGICON.OLEMSGICON_INFO,
+                0, // false
+                out result));
         }
 
+        public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnQueryUnloadProject(IVsHierarchy pRealHierarchy, ref int pfCancel)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
+        {
+            ViewWelcomePage();
+            return VSConstants.S_OK;
+        }
+
+        private void ViewWelcomePage()
+        {
+            ShowMessageBox("StartPage", "Hello World");
+        }
+
+        public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnBeforeCloseSolution(object pUnkReserved)
+        {
+            return VSConstants.S_OK;
+        }
+
+        public int OnAfterCloseSolution(object pUnkReserved)
+        {
+            return VSConstants.S_OK;
+        }
     }
 }
