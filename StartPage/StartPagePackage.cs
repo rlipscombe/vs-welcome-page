@@ -3,8 +3,11 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
+using System.Security.Cryptography;
+using System.Text;
 using System.Xml;
 using EnvDTE;
 using Microsoft.Win32;
@@ -43,6 +46,7 @@ namespace RogerLipscombe.StartPage
         private IVsSolution _solution;
         private uint _dwCookie;
         private Process _webServerProcess;
+        private int _port;
 
         /// <summary>
         /// Default constructor of the package.
@@ -171,51 +175,54 @@ namespace RogerLipscombe.StartPage
 
         private void ViewWelcomePageThrows()
         {
-// Figure out where the .SLN file lives.
-            var dte = (DTE) GetService(typeof (DTE));
-            var solutionFileName = GetSolutionFileName(dte);
-            if (solutionFileName == null)
-                return;
+            var dte = (DTE)GetService(typeof(DTE));
+            if (_webServerProcess == null)
+            {
+                // Figure out where the .SLN file lives.
+                var solutionFileName = GetSolutionFileName(dte);
+                if (solutionFileName == null)
+                    return;
 
-            var solutionFolder = Path.GetDirectoryName(solutionFileName);
+                var solutionFolder = Path.GetDirectoryName(solutionFileName);
 
-            // Figure out where the web application binaries are.
-            // TODO: Do this properly.
-            var webApplicationSourceRoot = @"C:\Users\roger\Source\vs-start-page\StartPage.WebApplication";
+                // Figure out where the web application binaries are.
+                // TODO: Do this properly.
+                var webApplicationSourceRoot = @"C:\Users\roger\Source\vs-start-page\StartPage.WebApplication";
 
-            // Copy the web application binaries to a new temporary location.
-            var instanceDirectory = GetWebAppInstanceDirectory(solutionFileName);
-            CopyWebAppFiles(webApplicationSourceRoot, instanceDirectory);
+                // Copy the web application binaries to a new temporary location.
+                var instanceDirectory = GetWebAppInstanceDirectory(solutionFileName);
+                CopyWebAppFiles(webApplicationSourceRoot, instanceDirectory);
 
-            // TODO: Can we avoid doing this by (somehow) configuring application root in Web.config?
+                // TODO: Can we avoid doing this by (somehow) configuring application root in Web.config?
 
-            // Write the solution path to Web.config.
-            ConfigureWebAppInstance(instanceDirectory, solutionFolder);
+                // Write the solution path to Web.config.
+                ConfigureWebAppInstance(instanceDirectory, solutionFolder);
 
-            // Figure out a port number.
-            var random = new Random();
-            int port = random.Next(10000, short.MaxValue);
-            Debug.WriteLine("Using port number '{0}'", port);
+                // Figure out a port number.
+                var random = new Random();
+                _port = random.Next(10000, short.MaxValue);
+                Debug.WriteLine("Using port number '{0}'", _port);
 
-            // Fire up IIS Express.
-            var fileName = GetIisExpressFileName();
-            var startInfo = new ProcessStartInfo
-                {
-                    FileName = fileName,
-                    Arguments = string.Format("/path:\"{0}\" /port:{1}", instanceDirectory, port),
-                    WindowStyle = ProcessWindowStyle.Hidden
-                };
+                // Fire up IIS Express.
+                var fileName = GetIisExpressFileName();
+                var startInfo = new ProcessStartInfo
+                    {
+                        FileName = fileName,
+                        Arguments = string.Format("/path:\"{0}\" /port:{1}", instanceDirectory, _port),
+                        WindowStyle = ProcessWindowStyle.Hidden
+                    };
 
-            // TODO: How to detect a port number clash?
-            _webServerProcess = Process.Start(startInfo);
-            Debug.WriteLine("IIS Express started ({0} {1}). Process ID = {2}. Main Window = {3}.",
-                            startInfo.FileName, startInfo.Arguments,
-                            _webServerProcess.Id, _webServerProcess.MainWindowHandle);
+                // TODO: How to detect a port number clash?
+                _webServerProcess = Process.Start(startInfo);
+                Debug.WriteLine("IIS Express started ({0} {1}). Process ID = {2}. Main Window = {3}.",
+                                startInfo.FileName, startInfo.Arguments,
+                                _webServerProcess.Id, _webServerProcess.MainWindowHandle);
+            }
 
             // Open the web browser.
             // TODO: How do we (should we?) bring it to the front?
             // TODO: If we don't bring it to the front, how do we bring it to the user's attention?
-            string url = string.Format("http://localhost:{0}/", port);
+            string url = string.Format("http://localhost:{0}/", _port);
             Debug.WriteLine("Navigating to '{0}'", url);
             dte.ItemOperations.Navigate(url);
         }
@@ -281,23 +288,68 @@ namespace RogerLipscombe.StartPage
                     Directory.CreateDirectory(destinationDirectory);
 
                 Debug.WriteLine("Copying '{0}' to '{1}'...", sourceFileName, destinationFileName);
+                // TODO: Symlink, rather than copy?
                 File.Copy(sourceFileName, destinationFileName, overwrite: true);
             }
         }
 
+        /// <summary>
+        /// Figure out where to put the web application instance for this solution.
+        /// </summary>
         private static string GetWebAppInstanceDirectory(string solutionFileName)
         {
-            // TODO: Put the temporary files in the TEMP folder.
-            // TODO: temporary folder should be a hash of the solution path, so that we can avoid copying the binaries if they're already there.
-            // Idea: if there's a foo.sln.welcomepage file, parse it to look for a port number; this'll allow users on the same team to use a fixed port number,
-            // making it easier to share URLs to bits of the documentation.
-            var solutionFolder = Path.GetDirectoryName(solutionFileName);
-            var instanceDirectory = Path.Combine(solutionFolder, "_StartPage");
-            if (!Directory.Exists(instanceDirectory))
-                Directory.CreateDirectory(instanceDirectory);
+            // Come up with a directory of the form "%TEMP%\StartPage_hash" where "hash" is
+            // generated from the solution file name.
+            // This allows us to:
+            // 1. keep the files outside the solution folder.
+            // 2. have a separate instance for each solution -- because they need to know where the files live.
+            // 3. keep the files around between runs, so that we start up more quickly the next time.
 
+            var tempPath = Path.GetTempPath();
+            var instanceKey = GetInstanceKey(solutionFileName);
+
+            var instanceDirectory = Path.Combine(tempPath, instanceKey);
             Debug.WriteLine("Using instance directory = '{0}'", instanceDirectory);
             return instanceDirectory;
+        }
+
+        private static string GetInstanceKey(string solutionFileName)
+        {
+            // MD5 is fine; we're not doing crypto, and we want something fairly short.
+            string suffix;
+            using (var alg = MD5.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(solutionFileName);
+                var hash = alg.ComputeHash(bytes);
+
+                // We need to use Base36, because Base64 uses upper and lower case letters,
+                // and Windows filenames are case-insensitive.
+                suffix = ToBase36String(hash);
+            }
+
+            var instanceKey = string.Format("StartPage_{0}_{1}",
+                                            Path.GetFileNameWithoutExtension(solutionFileName), suffix);
+            return instanceKey;
+        }
+
+        private static string ToBase36String(byte[] bytes)
+        {
+            const string alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+            // log2(36) is slightly more than 6: so for every 6 bits in the source, we need 8.
+            int capacity = 8*bytes.Length/6;
+            var result = new StringBuilder(capacity);
+
+            var dividend = new BigInteger(bytes);
+            while (!dividend.IsZero)
+            {
+                BigInteger remainder;
+                dividend = BigInteger.DivRem(dividend, 36, out remainder);
+                int index = Math.Abs((int) remainder);
+                result.Append(alphabet[index]);
+            }
+         
+            return result.ToString();
         }
 
         private static string GetSolutionFileName(DTE dte)
