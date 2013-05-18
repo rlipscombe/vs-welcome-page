@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Kiwi.Markdown;
 using Kiwi.Markdown.ContentProviders;
 using Nancy;
+using Nancy.Responses.Negotiation;
 
 namespace StartPage.WebApplication
 {
@@ -29,7 +30,11 @@ namespace StartPage.WebApplication
                     return GetDocument(id);
                 };
 
-            Get["/{id}"] = context => GetDocument(context.Id);
+            Get["/{id*}"] = context =>
+                {
+                    string id = context.Id;
+                    return GetDocument(id);
+                };
 
             Get["/_About"] = context =>
                     {
@@ -50,7 +55,7 @@ namespace StartPage.WebApplication
                 };
         }
 
-        private dynamic GetDocument(string name)
+        private Negotiator GetDocument(string name)
         {
             var document = _converter.GetDocument(name);
 
