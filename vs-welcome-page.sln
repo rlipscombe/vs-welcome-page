@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StartPage.WebApplication", "StartPage.WebApplication\StartPage.WebApplication.csproj", "{1730B4D6-1ED0-4C37-91D1-FFA932F67E48}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WelcomePage.WebApplication", "WelcomePage.WebApplication\WelcomePage.WebApplication.csproj", "{1730B4D6-1ED0-4C37-91D1-FFA932F67E48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StartPage", "StartPage\StartPage.csproj", "{FE7E081F-75E0-4CC9-A21C-F25BD6880C9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WelcomePage", "WelcomePage\WelcomePage.csproj", "{FE7E081F-75E0-4CC9-A21C-F25BD6880C9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
