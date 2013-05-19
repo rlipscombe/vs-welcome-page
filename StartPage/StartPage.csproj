@@ -142,6 +142,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\StartPage.WebApplication.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
@@ -158,13 +162,70 @@
     <None Include="Resources\Images.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Package.ico" />
+    <ProjectReference Include="..\StartPage.WebApplication\StartPage.WebApplication.csproj">
+      <Project>{1730B4D6-1ED0-4C37-91D1-FFA932F67E48}</Project>
+      <Name>StartPage.WebApplication</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Target Name="BeforeBuild" DependsOnTargets="PublishWebApplication;CompressWebApplication"/>
+  <Target Name="PublishWebApplication">
+    <!-- We need to publish the other project first, because we need the output. -->
+    <MSBuild Projects="..\StartPage.WebApplication\StartPage.WebApplication.csproj"
+             Properties="DeployOnBuild=true;PublishProfile=Publish;Configuration=$(Configuration)" />
+  </Target>
+  <Target Name="CompressWebApplication">
+    <ItemGroup>
+      <Zip Include="..\StartPage.WebApplication\Publish\**" />
+    </ItemGroup>
+    <!-- ZIP the published output; it's mentioned as an asset in the VSIX manifest already. -->
+    <Zip InputFileNames="@(Zip)" OutputFileName="StartPage.WebApplication.Zip" OverwriteExistingFile="true"/>
+  </Target>
+
+  <UsingTask TaskName="Zip" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <InputFileNames ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true"/>
+      <OutputFileName ParameterType="System.String" Required="true"/>
+      <OverwriteExistingFile ParameterType="System.Boolean" Required="false"/>
+    </ParameterGroup>
+    <Task>
+    <Reference Include="System.IO.Compression"/>
+      <Using Namespace="System.IO.Compression"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            var fileMode = OverwriteExistingFile ? FileMode.Create : FileMode.CreateNew;
+
+            using (var outputFileStream = new FileStream(OutputFileName, fileMode))
+            {
+                using (var archive = new ZipArchive(outputFileStream, ZipArchiveMode.Create))
+		{
+		    Log.LogMessage("Creating ZIP archive '{0}'...", OutputFileName);
+                    foreach (var inputFileName in InputFileNames)
+		    {
+		    	var entryName = Path.Combine(inputFileName.GetMetadata("RecursiveDir"), Path.GetFileName(inputFileName.ItemSpec));
+			Log.LogMessage("Adding '{0}' as '{1}'...", inputFileName.ItemSpec, entryName);
+                        var archiveEntry = archive.CreateEntry(entryName);
+
+                        using (var fs = new FileStream(inputFileName.ItemSpec, FileMode.Open))
+                        {
+                            using (var zipStream = archiveEntry.Open())
+                            {
+                                fs.CopyTo(zipStream);
+                            }
+                        }
+                    }
+                }
+            }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

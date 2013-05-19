@@ -167,8 +167,8 @@ namespace RogerLipscombe.StartPage
                 var solutionFolder = Path.GetDirectoryName(solutionFileName);
 
                 // Figure out where the web application binaries are.
-                // TODO: Do this properly.
-                var webApplicationSourceRoot = @"C:\Users\roger\Source\vs-start-page\StartPage.WebApplication";
+                var webApplicationSourceRoot = Path.GetDirectoryName(typeof (StartPagePackage).Assembly.Location);
+                Log("Web Application Source Root = '{0}'", webApplicationSourceRoot);
 
                 // Copy the web application binaries to a new temporary location.
                 var instanceDirectory = GetWebAppInstanceDirectory(solutionFileName);
