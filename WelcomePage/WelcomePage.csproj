@@ -14,8 +14,8 @@
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RogerLipscombe.StartPage</RootNamespace>
-    <AssemblyName>StartPage</AssemblyName>
+    <RootNamespace>RogerLipscombe.WelcomePage</RootNamespace>
+    <AssemblyName>WelcomePage</AssemblyName>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -127,7 +127,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="StartPagePackage.cs" />
+    <Compile Include="WelcomePagePackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PkgCmdID.cs" />
   </ItemGroup>
@@ -143,7 +143,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\StartPage.WebApplication.zip">
+    <Content Include="Assets\WelcomePage.WebApplication.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -155,7 +155,7 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
-    <VSCTCompile Include="StartPage.vsct">
+    <VSCTCompile Include="WelcomePage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
   </ItemGroup>
@@ -171,14 +171,14 @@
   <Target Name="BeforeBuild" DependsOnTargets="PublishWebApplication;CompressWebApplication" />
   <Target Name="PublishWebApplication">
     <!-- We need to publish the other project first, because we need the output. -->
-    <MSBuild Projects="..\StartPage.WebApplication\StartPage.WebApplication.csproj" Properties="DeployOnBuild=true;PublishProfile=Publish;Configuration=$(Configuration)" />
+    <MSBuild Projects="..\WelcomePage.WebApplication\WelcomePage.WebApplication.csproj" Properties="DeployOnBuild=true;PublishProfile=Publish;Configuration=$(Configuration)" />
   </Target>
   <Target Name="CompressWebApplication">
     <ItemGroup>
-      <Zip Include="..\StartPage.WebApplication\Publish\**" />
+      <Zip Include="..\WelcomePage.WebApplication\Publish\**" />
     </ItemGroup>
     <!-- ZIP the published output; it's mentioned as an asset in the VSIX manifest already. -->
-    <Zip InputFileNames="@(Zip)" OutputFileName="Assets\StartPage.WebApplication.zip" OverwriteExistingFile="true" />
+    <Zip InputFileNames="@(Zip)" OutputFileName="Assets\WelcomePage.WebApplication.zip" OverwriteExistingFile="true" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
