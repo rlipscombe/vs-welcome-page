@@ -16,7 +16,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using Process = System.Diagnostics.Process;
 
-namespace RogerLipscombe.StartPage
+namespace RogerLipscombe.WelcomePage
 {
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
@@ -24,8 +24,8 @@ namespace RogerLipscombe.StartPage
     // We need to load early enough to be able to hook solution events.
     // VSConstants.UICONTEXT_NoSolution
     [ProvideAutoLoad("ADFC4E64-0397-11D1-9F4E-00A0C911004F")]
-    [Guid(GuidList.guidStartPagePkgString)]
-    public sealed class StartPagePackage : Package, IVsSolutionEvents
+    [Guid(GuidList.guidWelcomePagePkgString)]
+    public sealed class WelcomePagePackage : Package, IVsSolutionEvents
     {
         private IVsSolution _solution;
         private uint _dwCookie;
@@ -83,7 +83,7 @@ namespace RogerLipscombe.StartPage
                 return;
 
             // Create the command for the menu item.
-            var menuCommandId = new CommandID(GuidList.guidStartPageCmdSet, (int) PkgCmdIDList.cmdidViewWelcomePage);
+            var menuCommandId = new CommandID(GuidList.guidWelcomePageCmdSet, (int) PkgCmdIDList.cmdidViewWelcomePage);
             var menuItem = new MenuCommand((sender, e) => ViewWelcomePage(), menuCommandId);
             mcs.AddCommand(menuItem);
         }
@@ -168,7 +168,7 @@ namespace RogerLipscombe.StartPage
                 var solutionFolder = Path.GetDirectoryName(solutionFileName);
 
                 // Figure out where the web application binaries are.
-                var webApplicationAssets = Path.Combine(Path.GetDirectoryName(typeof (StartPagePackage).Assembly.Location), "Assets", "StartPage.WebApplication.zip");
+                var webApplicationAssets = Path.Combine(Path.GetDirectoryName(typeof (WelcomePagePackage).Assembly.Location), "Assets", "WelcomePage.WebApplication.zip");
                 Log("Web Application Assets = '{0}'", webApplicationAssets);
 
                 // Copy the web application binaries to a new temporary location.
@@ -296,7 +296,7 @@ namespace RogerLipscombe.StartPage
         /// </summary>
         private static string GetWebAppInstanceDirectory(string solutionFileName)
         {
-            // Come up with a directory of the form "%TEMP%\StartPage_hash" where "hash" is
+            // Come up with a directory of the form "%TEMP%\WelcomePage_hash" where "hash" is
             // generated from the solution file name.
             // This allows us to:
             // 1. keep the files outside the solution folder.
@@ -325,7 +325,7 @@ namespace RogerLipscombe.StartPage
                 suffix = ToBase36String(hash);
             }
 
-            var instanceKey = string.Format("StartPage_{0}_{1}",
+            var instanceKey = string.Format("WelcomePage_{0}_{1}",
                                             Path.GetFileNameWithoutExtension(solutionFileName), suffix);
             return instanceKey;
         }

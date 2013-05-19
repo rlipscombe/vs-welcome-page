@@ -2,7 +2,7 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="947a85ca-9a1e-45e4-86bd-e0c4ef3eda66" Version="1.0" Language="en-US" Publisher="Roger Lipscombe" />
-    <DisplayName>StartPage</DisplayName>
+    <DisplayName>WelcomePage</DisplayName>
     <Description>Displays a welcome page when opening a solution in Visual Studio.</Description>
   </Metadata>
   <Installation InstalledByMsi="false">
@@ -14,6 +14,6 @@
   </Dependencies>
   <Assets>
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
-    <Asset Type="Include" d:Source="File" Path="Assets\StartPage.WebApplication.zip" d:VsixSubPath="Assets" />
+    <Asset Type="Include" d:Source="File" Path="Assets\WelcomePage.WebApplication.zip" d:VsixSubPath="Assets" />
   </Assets>
 </PackageManifest>

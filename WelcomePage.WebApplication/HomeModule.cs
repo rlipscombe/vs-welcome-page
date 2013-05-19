@@ -13,7 +13,7 @@ using Nancy.ErrorHandling;
 using Nancy.Responses.Negotiation;
 using Nancy.ViewEngines;
 
-namespace StartPage.WebApplication
+namespace WelcomePage.WebApplication
 {
     public class ErrorHandler //: IStatusCodeHandler
     {

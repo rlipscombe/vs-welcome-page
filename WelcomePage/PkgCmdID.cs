@@ -2,7 +2,7 @@
 // MUST match PkgCmdID.h
 using System;
 
-namespace RogerLipscombe.StartPage
+namespace RogerLipscombe.WelcomePage
 {
     static class PkgCmdIDList
     {
