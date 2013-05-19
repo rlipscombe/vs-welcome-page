@@ -1,3 +1,9 @@
+# Generated during build.
+WelcomePage/Assets/
+
+# ReSharper file that I don't particularly feel like sharing.
+*.DotSettings
+
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 [Bb]in/
 [Oo]bj/
