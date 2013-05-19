@@ -211,8 +211,7 @@ namespace RogerLipscombe.WelcomePage
         {
             Log("Extracting Web Application from '{0}'...", zipFileName);
 
-            using (var stream = File.OpenRead(zipFileName))
-            using (var zip = new ZipArchive(stream, ZipArchiveMode.Read))
+            using (var zip = new ZipArchive(File.OpenRead(zipFileName), ZipArchiveMode.Read))
             {
                 foreach (var entry in zip.Entries)
                 {
