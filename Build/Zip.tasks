@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <UsingTask TaskName="Zip" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <InputFileNames ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <OutputFileName ParameterType="System.String" Required="true" />
+      <OverwriteExistingFile ParameterType="System.Boolean" Required="false" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.IO.Compression" />
+      <Using Namespace="System.IO.Compression" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+            var fileMode = OverwriteExistingFile ? FileMode.Create : FileMode.CreateNew;
+
+            using (var outputFileStream = new FileStream(OutputFileName, fileMode))
+            {
+                using (var archive = new ZipArchive(outputFileStream, ZipArchiveMode.Create))
+		{
+		    Log.LogMessage("Creating ZIP archive '{0}'...", OutputFileName);
+                    foreach (var inputFileName in InputFileNames)
+		    {
+		    	var entryName = Path.Combine(inputFileName.GetMetadata("RecursiveDir"), Path.GetFileName(inputFileName.ItemSpec));
+			Log.LogMessage("Adding '{0}' as '{1}'...", inputFileName.ItemSpec, entryName);
+                        var archiveEntry = archive.CreateEntry(entryName);
+
+                        using (var fs = new FileStream(inputFileName.ItemSpec, FileMode.Open))
+                        {
+                            using (var zipStream = archiveEntry.Open())
+                            {
+                                fs.CopyTo(zipStream);
+                            }
+                        }
+                    }
+                }
+            }
+        ]]></Code>
+    </Task>
+  </UsingTask>
+</Project>

@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
@@ -167,12 +168,12 @@ namespace RogerLipscombe.StartPage
                 var solutionFolder = Path.GetDirectoryName(solutionFileName);
 
                 // Figure out where the web application binaries are.
-                var webApplicationSourceRoot = Path.GetDirectoryName(typeof (StartPagePackage).Assembly.Location);
-                Log("Web Application Source Root = '{0}'", webApplicationSourceRoot);
+                var webApplicationAssets = Path.Combine(Path.GetDirectoryName(typeof (StartPagePackage).Assembly.Location), "Assets", "StartPage.WebApplication.zip");
+                Log("Web Application Assets = '{0}'", webApplicationAssets);
 
                 // Copy the web application binaries to a new temporary location.
                 var instanceDirectory = GetWebAppInstanceDirectory(solutionFileName);
-                CopyWebAppFiles(webApplicationSourceRoot, instanceDirectory);
+                ExtractWebAppFiles(webApplicationAssets, instanceDirectory);
 
                 // Write the solution path to Web.config.
                 ConfigureWebAppInstance(instanceDirectory, solutionFolder);
@@ -204,6 +205,42 @@ namespace RogerLipscombe.StartPage
             string url = string.Format("http://localhost:{0}/", _port);
             Log("Navigating to '{0}'", url);
             dte.ItemOperations.Navigate(url);
+        }
+
+        private void ExtractWebAppFiles(string zipFileName, string instanceDirectory)
+        {
+            Log("Extracting Web Application from '{0}'...", zipFileName);
+
+            using (var stream = File.OpenRead(zipFileName))
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Read))
+            {
+                foreach (var entry in zip.Entries)
+                {
+                    var destinationFileName = Path.Combine(instanceDirectory, entry.FullName);
+
+                    if (!File.Exists(destinationFileName) ||
+                        (entry.LastWriteTime > File.GetLastWriteTimeUtc(destinationFileName)))
+                    {
+                        Log("Extracting '{0}' to '{1}'...", entry.FullName, destinationFileName);
+
+                        var destinationDirectory = Path.GetDirectoryName(destinationFileName);
+                        if (!Directory.Exists(destinationDirectory))
+                            Directory.CreateDirectory(destinationDirectory);
+
+                        using (var entryStream = entry.Open())
+                        using (
+                            var destinationStream = File.Open(destinationFileName, FileMode.Create, FileAccess.Write,
+                                                              FileShare.Read))
+                        {
+                            entryStream.CopyTo(destinationStream);
+                        }
+                    }
+                    else
+                    {
+                        Log("Skipping '{0}' because it is up-to-date.", destinationFileName);
+                    }
+                }
+            }
         }
 
         private static void ConfigureWebAppInstance(string instanceDirectory, string solutionFolder)
@@ -252,29 +289,6 @@ namespace RogerLipscombe.StartPage
 
             var fileName = Path.Combine(installPath, "iisexpress.exe");
             return fileName;
-        }
-
-        private static void CopyWebAppFiles(string webApplicationSourceRoot, string temporaryPath)
-        {
-            var webApplicationFiles = Directory.EnumerateFiles(webApplicationSourceRoot, "*", SearchOption.AllDirectories);
-            foreach (var webApplicationFile in webApplicationFiles)
-            {
-                var sourceFileName = webApplicationFile;
-                var relativeFileName = webApplicationFile.Substring(webApplicationSourceRoot.Length + 1);
-                var destinationFileName = Path.Combine(temporaryPath, relativeFileName);
-                var destinationDirectory = Path.GetDirectoryName(destinationFileName);
-                if (!Directory.Exists(destinationDirectory))
-                    Directory.CreateDirectory(destinationDirectory);
-
-                if (!File.Exists(destinationFileName) ||
-                    (File.GetLastWriteTimeUtc(sourceFileName) > File.GetLastWriteTimeUtc(destinationFileName)))
-                {
-                    Log("Copying '{0}' to '{1}'...", sourceFileName, destinationFileName);
-                    File.Copy(sourceFileName, destinationFileName, overwrite: true);
-                }
-                else
-                    Log("File '{0}' is up-to-date.", destinationFileName);
-            }
         }
 
         /// <summary>
