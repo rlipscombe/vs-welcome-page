@@ -55,7 +55,7 @@ namespace WelcomePage.WebApplication
                 return;
             }
 
-            throw exception;
+            RenderView(context, "Errors/500", HttpStatusCode.InternalServerError, new {exception.Message});
         }
 
         private void RenderView(NancyContext context, string viewName, HttpStatusCode statusCode, object model)

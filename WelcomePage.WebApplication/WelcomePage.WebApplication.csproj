@@ -79,6 +79,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\Errors\404.html" />
+    <Content Include="Views\Errors\500.html" />
     <Content Include="Views\Home\About.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
