@@ -181,7 +181,7 @@
   </Target>
   <Target Name="CompressWebApplication">
     <ItemGroup>
-      <Zip Include="..\WelcomePage.WebApplication\Publish\**" />
+      <Zip Include="..\WelcomePage.WebApplication\Publish\**" Exclude="..\WelcomePage.WebApplication\Publish\**\*.pdb" />
     </ItemGroup>
     <!-- ZIP the published output; it's mentioned as an asset in the VSIX manifest already. -->
     <Zip InputFileNames="@(Zip)" OutputFileName="Assets\WelcomePage.WebApplication.zip" OverwriteExistingFile="true" />
