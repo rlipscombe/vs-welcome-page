@@ -19,7 +19,6 @@ namespace WelcomePage.WebApplication
 
         public HomeModule()
         {
-            // BUG: YSOD when the root directory doesn't exist...
             _rootDirectory = GetRootDirectory();
             var contentProvider = new FileContentProvider(_rootDirectory);
             _converter = new MarkdownService(contentProvider);
