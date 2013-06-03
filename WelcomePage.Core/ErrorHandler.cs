@@ -6,7 +6,7 @@ using Nancy.ViewEngines;
 
 namespace WelcomePage.WebApplication
 {
-    public class ErrorHandler : IStatusCodeHandler
+    public class ErrorHandler //: IStatusCodeHandler
     {
         private readonly IViewFactory _viewFactory;
 
