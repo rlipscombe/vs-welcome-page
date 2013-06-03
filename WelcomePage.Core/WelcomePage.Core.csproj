@@ -54,10 +54,12 @@
     <Compile Include="AttributeExtensions.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="DefaultDocumentNotFoundException.cs" />
+    <Compile Include="DocumentFolder.cs" />
     <Compile Include="DocumentRenderer.cs" />
     <Compile Include="EmbeddedStaticContentsConventionBuilder.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="HomeModule.cs" />
+    <Compile Include="IDocumentFolder.cs" />
     <Compile Include="IDocumentRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderedDocument.cs" />

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace WelcomePage.WebApplication
+namespace WelcomePage.Core
 {
     internal static class AttributeExtensions
     {

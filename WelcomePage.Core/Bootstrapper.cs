@@ -1,38 +1,34 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.Conventions;
 using Nancy.TinyIoc;
 using Nancy.ViewEngines;
 
-namespace WelcomePage.WebApplication
+namespace WelcomePage.Core
 {
     public class Bootstrapper : DefaultNancyBootstrapper
     {
-        private string RootFolder { get; set; }
+        private IDocumentFolder _documentFolder;
 
         /// <summary>
         /// Used in the test web application; assumes that Web
         /// </summary>
         public Bootstrapper()
-            : this(ConfigurationManager.AppSettings["RootFolder"])
+            : this(DocumentFolder.Create(ConfigurationManager.AppSettings["RootFolder"]))
         {
         }
 
-        public Bootstrapper(string rootFolder)
+        public Bootstrapper(IDocumentFolder documentFolder)
         {
-            if (rootFolder == null)
-                throw new ArgumentNullException("rootFolder");
-            
-            RootFolder = rootFolder;
+            _documentFolder = documentFolder;
         }
 
         protected override void ConfigureApplicationContainer(TinyIoCContainer container)
         {
             base.ConfigureApplicationContainer(container);
 
-            container.Register<IDocumentRenderer, DocumentRenderer>(new DocumentRenderer(RootFolder));
+            container.Register<IDocumentRenderer, DocumentRenderer>(new DocumentRenderer(_documentFolder));
         }
 
         protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)

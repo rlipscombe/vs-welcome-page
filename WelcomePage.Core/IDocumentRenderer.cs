@@ -1,4 +1,4 @@
-﻿namespace WelcomePage.WebApplication
+﻿namespace WelcomePage.Core
 {
     public interface IDocumentRenderer
     {

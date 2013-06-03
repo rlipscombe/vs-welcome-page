@@ -15,7 +15,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using Nancy.Hosting.Self;
-using WelcomePage.WebApplication;
+using WelcomePage.Core;
 
 namespace RogerLipscombe.WelcomePage
 {
@@ -26,7 +26,7 @@ namespace RogerLipscombe.WelcomePage
     // VSConstants.UICONTEXT_NoSolution
     [ProvideAutoLoad("ADFC4E64-0397-11D1-9F4E-00A0C911004F")]
     [Guid(GuidList.guidWelcomePagePkgString)]
-    public sealed class WelcomePagePackage : Package, IVsSolutionEvents
+    public sealed class WelcomePagePackage : Package, IVsSolutionEvents, IDisposable
     {
         // Event subscription.
         private IVsSolution _solution;
@@ -179,7 +179,7 @@ namespace RogerLipscombe.WelcomePage
                 Log("Using URL '{0}'", _url);
 
                 // Fire up the web server.
-                var bootstrapper = new Bootstrapper(solutionFolder);
+                var bootstrapper = new Bootstrapper(DocumentFolder.Create(solutionFolder));
                 var configuration = new HostConfiguration { RewriteLocalhost = false };
                 _host = new NancyHost(bootstrapper, configuration, _url);
                 _host.Start();
@@ -225,6 +225,15 @@ namespace RogerLipscombe.WelcomePage
 
             // TODO: If the web browser is open, and pointing at the readme, close the window.
             return VSConstants.S_OK;
+        }
+
+        public void Dispose()
+        {
+            if (_host != null)
+            {
+                _host.Stop();
+                _host = null;
+            }
         }
     }
 }

@@ -1,34 +1,33 @@
 ﻿using System;
-using System.IO;
 using System.Text.RegularExpressions;
 using Kiwi.Markdown;
-using Kiwi.Markdown.ContentProviders;
 
-namespace WelcomePage.WebApplication
+namespace WelcomePage.Core
 {
     public class DocumentRenderer : IDocumentRenderer
     {
         private readonly IMarkdownService _converter;
-        private readonly string _rootDirectory;
+        private readonly IDocumentFolder _documentFolder;
 
-        public DocumentRenderer(string rootDirectory)
+        public DocumentRenderer(IDocumentFolder documentFolder)
         {
-            if (rootDirectory == null) 
-                throw new ArgumentNullException("rootDirectory");
+            if (documentFolder == null)
+                throw new ArgumentNullException("documentFolder");
 
-            var contentProvider = new FileContentProvider(rootDirectory);
-            _converter = new MarkdownService(contentProvider);
-            _rootDirectory = rootDirectory;
+            // TODO: Construct the converter on the fly, according to the type of the document found?
+            // Although, that said, maybe we need different IDocumentRenderer instances according to the type?
+            _converter = new MarkdownService(documentFolder.ContentProvider);
+            _documentFolder = documentFolder;
         }
 
         public string RootDirectory
         {
-            get { return _rootDirectory; }
+            get { return _documentFolder.RootDirectory; }
         }
 
         public RenderedDocument GetDefaultDocument()
         {
-            var name = FindDefaultDocumentId(_rootDirectory);
+            var name = FindDefaultDocumentId();
             return GetDocument(name);
         }
 
@@ -42,26 +41,9 @@ namespace WelcomePage.WebApplication
             return new RenderedDocument { Title = document.Title, Content = content };
         }
 
-        private string FindDefaultDocumentId(string rootDirectory)
+        private string FindDefaultDocumentId()
         {
-            if (rootDirectory == null)
-                throw new ArgumentNullException("rootDirectory");
-
-            var options = new[]
-                {
-                    "Index",    // because
-                    "Home",     // github wiki
-                    "README"    // github project
-                };
-
-            foreach (var option in options)
-            {
-                var path = Path.Combine(rootDirectory, string.Format("{0}.md", option));
-                if (File.Exists(path))
-                    return option;
-            }
-
-            throw new DefaultDocumentNotFoundException(rootDirectory, options);
+            return _documentFolder.FindDefaultDocumentId();
         }
     }
 }

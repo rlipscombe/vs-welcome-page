@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using Nancy;
-using Nancy.ErrorHandling;
 using Nancy.ViewEngines;
 
-namespace WelcomePage.WebApplication
+namespace WelcomePage.Core
 {
     public class ErrorHandler //: IStatusCodeHandler
     {

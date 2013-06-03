@@ -3,7 +3,7 @@ using System.Reflection;
 using Nancy;
 using Nancy.Responses;
 
-namespace WelcomePage.WebApplication
+namespace WelcomePage.Core
 {
     static class EmbeddedStaticContentsConventionBuilder
     {

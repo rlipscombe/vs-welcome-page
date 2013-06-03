@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace WelcomePage.WebApplication
+namespace WelcomePage.Core
 {
     internal class DefaultDocumentNotFoundException : FileNotFoundException
     {

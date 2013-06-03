@@ -3,7 +3,7 @@ using System.Reflection;
 using Nancy;
 using Nancy.Responses.Negotiation;
 
-namespace WelcomePage.WebApplication
+namespace WelcomePage.Core
 {
     public class HomeModule : NancyModule
     {
