@@ -9,16 +9,15 @@ namespace WelcomePage.Core
 {
     public class Bootstrapper : DefaultNancyBootstrapper
     {
-        private IDocumentFolder _documentFolder;
-
         /// <summary>
         /// Used in the test web application; assumes that Web
         /// </summary>
         public Bootstrapper()
-            : this(DocumentFolder.Create(ConfigurationManager.AppSettings["RootFolder"]))
+//            : this(DocumentFolder.Create(ConfigurationManager.AppSettings["RootFolder"]))
         {
         }
 
+#if false
         public Bootstrapper(IDocumentFolder documentFolder)
         {
             _documentFolder = documentFolder;
@@ -30,6 +29,7 @@ namespace WelcomePage.Core
 
             container.Register<IDocumentRenderer, DocumentRenderer>(new DocumentRenderer(_documentFolder));
         }
+#endif
 
         protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
         {
@@ -65,6 +65,11 @@ namespace WelcomePage.Core
                     NancyInternalConfiguration.WithOverrides(
                         x => x.ViewLocationProvider = typeof (ResourceViewLocationProvider));
             }
+        }
+
+        protected override IRootPathProvider RootPathProvider
+        {
+            get { return new DefaultRootPathProvider(); }
         }
     }
 }

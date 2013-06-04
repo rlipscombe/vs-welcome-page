@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-using Nancy;
+﻿using Nancy;
 using Nancy.Responses.Negotiation;
 
 namespace WelcomePage.Core
@@ -24,28 +22,6 @@ namespace WelcomePage.Core
                     string id = context.Id;
                     var document = _renderer.GetDocument(id);
                     return ViewDocument(document);
-                };
-
-            Get["/_About"] = context =>
-                {
-                    var processId = Process.GetCurrentProcess().Id;
-                    var location = Assembly.GetExecutingAssembly().Location;
-                    var informationalVersion =
-                        Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                    var version =
-                        Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>();
-                    var model =
-                        new
-                            {
-                                ProcessId = processId,
-                                Location = location,
-                                _renderer.RootDirectory,
-                                Version =
-                                    informationalVersion != null
-                                        ? informationalVersion.InformationalVersion
-                                        : version.Version
-                            };
-                    return View["About", model];
                 };
         }
 

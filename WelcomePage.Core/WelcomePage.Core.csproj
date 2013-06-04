@@ -59,6 +59,7 @@
     <Compile Include="EmbeddedStaticContentsConventionBuilder.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="HomeModule.cs" />
+    <Compile Include="IDefaultDocumentPolicy.cs" />
     <Compile Include="IDocumentFolder.cs" />
     <Compile Include="IDocumentRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

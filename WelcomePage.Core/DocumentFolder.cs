@@ -5,21 +5,9 @@ using Kiwi.Markdown.ContentProviders;
 
 namespace WelcomePage.Core
 {
-    public class DocumentFolder : IDocumentFolder
+#if false
+    public class DefaultDocumentPolicy : IDefaultDocumentPolicy
     {
-        public DocumentFolder(string rootDirectory)
-        {
-            if (rootDirectory == null)
-                throw new ArgumentNullException("rootDirectory");
-
-            RootDirectory = rootDirectory;
-            ContentProvider = new FileContentProvider(rootDirectory);
-        }
-
-        public IContentProvider ContentProvider { get; private set; }
-
-        public string RootDirectory { get; private set; }
-    
         public string FindDefaultDocumentId()
         {
             var options = new[]
@@ -38,10 +26,27 @@ namespace WelcomePage.Core
 
             throw new DefaultDocumentNotFoundException(RootDirectory, options);
         }
+    }
+
+    public class DocumentFolder : IDocumentFolder
+    {
+        public DocumentFolder(string rootDirectory)
+        {
+            if (rootDirectory == null)
+                throw new ArgumentNullException("rootDirectory");
+
+            RootDirectory = rootDirectory;
+            ContentProvider = new FileContentProvider(rootDirectory);
+        }
+
+        public IContentProvider ContentProvider { get; private set; }
+
+        public string RootDirectory { get; private set; }
 
         public static IDocumentFolder Create(string rootDirectory)
         {
             return new DocumentFolder(rootDirectory);
         }
     }
+#endif
 }

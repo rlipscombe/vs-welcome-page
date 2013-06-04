@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Configuration;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
-using System.Security.Cryptography;
-using System.Text;
-using System.Xml;
 using EnvDTE;
-using Microsoft.Win32;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
@@ -26,38 +17,14 @@ namespace RogerLipscombe.WelcomePage
     // VSConstants.UICONTEXT_NoSolution
     [ProvideAutoLoad("ADFC4E64-0397-11D1-9F4E-00A0C911004F")]
     [Guid(GuidList.guidWelcomePagePkgString)]
-    public sealed class WelcomePagePackage : Package, IVsSolutionEvents, IDisposable
+    public sealed class WelcomePagePackage : Package, IVsSolutionEvents
     {
         // Event subscription.
         private IVsSolution _solution;
         private uint _dwCookie;
 
         // Web server.
-        private Uri _url;
-        private NancyHost _host;
-
-        private static void Log(string message)
-        {
-            Debug.WriteLine(message);
-        }
-
-        private static void Log(string format, object arg0)
-        {
-            var message = string.Format(format, arg0);
-            Log(message);
-        }
-
-        private static void Log(string format, object arg0, object arg1)
-        {
-            var message = string.Format(format, arg0, arg1);
-            Log(message);
-        }
-
-        private static void Log(string format, params object[] args)
-        {
-            var message = string.Format(format, args);
-            Log(message);
-        }
+        private WelcomePageImpl _impl;
 
         protected override void Initialize()
         {
@@ -68,10 +35,20 @@ namespace RogerLipscombe.WelcomePage
             _solution = GetService(typeof (SVsSolution)) as IVsSolution;
             if (_solution != null)
                 _solution.AdviseSolutionEvents(this, out _dwCookie);
+
+            var dte = (DTE)GetService(typeof(DTE));
+
+            var itemOperations = new ItemOperationsWrapper(dte);
+            var solutionFolderWrapper = new SolutionFolderWrapper(dte);
+            var defaultDocumentPolicy = new DefaultDocumentPolicy();
+            var server = new WebServer();
+            _impl = new WelcomePageImpl(solutionFolderWrapper, defaultDocumentPolicy, itemOperations, server);
         }
 
         protected override void Dispose(bool disposing)
         {
+            _impl.Dispose();
+
             if (_solution != null && _dwCookie != 0)
                 _solution.UnadviseSolutionEvents(_dwCookie);
             _dwCookie = 0;
@@ -88,8 +65,20 @@ namespace RogerLipscombe.WelcomePage
 
             // Create the command for the menu item.
             var menuCommandId = new CommandID(GuidList.guidWelcomePageCmdSet, (int) PkgCmdIDList.cmdidViewWelcomePage);
-            var menuItem = new MenuCommand((sender, e) => ViewWelcomePage(), menuCommandId);
+            var menuItem = new MenuCommand((sender, e) => OnViewWelcomePage(), menuCommandId);
             mcs.AddCommand(menuItem);
+        }
+
+        private void OnViewWelcomePage()
+        {
+            try
+            {
+                _impl.OnViewWelcomePage();
+            }
+            catch (Exception ex)
+            {
+                ShowMessageBox("WelcomePage", ex.Message);
+            }
         }
 
         private void ShowMessageBox(string pszTitle, string pszText)
@@ -143,66 +132,15 @@ namespace RogerLipscombe.WelcomePage
 
         public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
         {
-            ViewWelcomePage();
-            return VSConstants.S_OK;
-        }
-
-        private void ViewWelcomePage()
-        {
             try
             {
-                ViewWelcomePageThrows();
+                _impl.OnAfterOpenSolution();
             }
             catch (Exception ex)
             {
-                ShowMessageBox("Whoops", ex.Message);
+                ShowMessageBox("WelcomePage", ex.Message);
             }
-        }
-
-        private void ViewWelcomePageThrows()
-        {
-            var dte = (DTE)GetService(typeof(DTE));
-
-            if (_host == null)
-            {
-                // Figure out where the .SLN file lives.
-                var solutionFileName = GetSolutionFileName(dte);
-                if (solutionFileName == null)
-                    return;
-
-                var solutionFolder = Path.GetDirectoryName(solutionFileName);
-
-                // Figure out a port number.
-                var random = new Random();
-                var port = random.Next(10000, short.MaxValue);
-                _url = new Uri(string.Format("http://localhost:{0}/", port));
-                Log("Using URL '{0}'", _url);
-
-                // Fire up the web server.
-                var bootstrapper = new Bootstrapper(DocumentFolder.Create(solutionFolder));
-                var configuration = new HostConfiguration { RewriteLocalhost = false };
-                _host = new NancyHost(bootstrapper, configuration, _url);
-                _host.Start();
-            }
-
-            // Open the web browser.
-            // TODO: How do we (should we?) bring it to the front?
-            // TODO: If we don't bring it to the front, how do we bring it to the user's attention?
-            Log("Navigating to '{0}'", _url);
-            dte.ItemOperations.Navigate(_url.ToString());
-        }
-
-        private static string GetSolutionFileName(DTE dte)
-        {
-            if (dte.Solution == null)
-                return null;
-
-            var solutionFileName = dte.Solution.FullName;
-            if (string.IsNullOrWhiteSpace(solutionFileName))
-                return null;
-
-            Log("solutionFileName = '{0}'.", solutionFileName);
-            return solutionFileName;
+            return VSConstants.S_OK;
         }
 
         public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel)
@@ -217,23 +155,10 @@ namespace RogerLipscombe.WelcomePage
 
         public int OnAfterCloseSolution(object pUnkReserved)
         {
-            if (_host != null)
-            {
-                _host.Stop();
-                _host = null;
-            }
+            _impl.OnAfterCloseSolution();
 
             // TODO: If the web browser is open, and pointing at the readme, close the window.
             return VSConstants.S_OK;
-        }
-
-        public void Dispose()
-        {
-            if (_host != null)
-            {
-                _host.Stop();
-                _host = null;
-            }
         }
     }
 }

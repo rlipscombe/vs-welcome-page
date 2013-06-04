@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Kiwi.Markdown;
+using Kiwi.Markdown.ContentProviders;
 
 namespace WelcomePage.Core
 {
     public class DocumentRenderer : IDocumentRenderer
     {
-        private readonly IMarkdownService _converter;
         private readonly IDocumentFolder _documentFolder;
 
         public DocumentRenderer(IDocumentFolder documentFolder)
@@ -14,9 +14,6 @@ namespace WelcomePage.Core
             if (documentFolder == null)
                 throw new ArgumentNullException("documentFolder");
 
-            // TODO: Construct the converter on the fly, according to the type of the document found?
-            // Although, that said, maybe we need different IDocumentRenderer instances according to the type?
-            _converter = new MarkdownService(documentFolder.ContentProvider);
             _documentFolder = documentFolder;
         }
 
@@ -33,7 +30,9 @@ namespace WelcomePage.Core
 
         public RenderedDocument GetDocument(string name)
         {
-            var document = _converter.GetDocument(name);
+            // TODO: Look up the converter based on the document type?
+            var converter = new MarkdownService(new FileContentProvider(_documentFolder.RootDirectory));
+            var document = converter.GetDocument(name);
 
             // Kiwi.Markdown (or MarkdownSharp) doesn't appear to support [[Links]], so we'll do that here:
             var content = Regex.Replace(document.Content, @"\[\[(.*?)\]\]",
