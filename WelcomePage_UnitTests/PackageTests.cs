@@ -1,25 +1,23 @@
-﻿using System;
-using System.ComponentModel.Design;
+﻿using System.ComponentModel.Design;
 using System.Reflection;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VsSDK.UnitTestLibrary;
-using Nancy.Bootstrapper;
+using NUnit.Framework;
 using RogerLipscombe.WelcomePage;
 
 namespace WelcomePage_UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class PackageTests
     {
-        [TestMethod]
+        [Test]
         public void CreateInstance()
         {
             var package = new WelcomePagePackage();
         }
 
-        [TestMethod]
+        [Test]
         public void SetSite()
         {
             // Arrange
@@ -31,7 +29,7 @@ namespace WelcomePage_UnitTests
             Assert.AreEqual(VSConstants.S_OK, package.SetSite(null));
         }
 
-        [TestMethod]
+        [Test]
         public void InitializeMenuCommand()
         {
             // Arrange

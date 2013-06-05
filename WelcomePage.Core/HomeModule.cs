@@ -17,10 +17,10 @@ namespace WelcomePage.Core
                     return ViewDocument(document);
                 };
 
-            Get["/{id*}"] = context =>
+            Get["/{path*}"] = context =>
                 {
-                    string id = context.Id;
-                    var document = _renderer.GetDocument(id);
+                    string path = context.Path;
+                    var document = _renderer.GetDocument(path);
                     return ViewDocument(document);
                 };
         }

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WelcomePage.Core
 {
-    internal class DefaultDocumentNotFoundException : FileNotFoundException
+    public class DefaultDocumentNotFoundException : FileNotFoundException
     {
         public DefaultDocumentNotFoundException(string rootDirectory, IEnumerable<string> options)
             : base(CreateMessage(rootDirectory, options))

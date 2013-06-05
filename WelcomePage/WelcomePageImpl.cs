@@ -64,6 +64,10 @@ namespace RogerLipscombe.WelcomePage
         /// </summary>
         public void OnViewWelcomePage()
         {
+            // TODO: The menu item should be disabled; this'll do for now.
+            if (_url == null)
+                return;
+
             // Open the web browser.
             Navigate(_url);
         }

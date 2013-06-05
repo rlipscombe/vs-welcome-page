@@ -1,41 +1,55 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
+using Autofac;
+using Kiwi.Markdown;
+using Kiwi.Markdown.ContentProviders;
 using Nancy;
 using Nancy.Bootstrapper;
+using Nancy.Bootstrappers.Autofac;
 using Nancy.Conventions;
-using Nancy.TinyIoc;
 using Nancy.ViewEngines;
 
 namespace WelcomePage.Core
 {
-    public class Bootstrapper : DefaultNancyBootstrapper
+    public class Bootstrapper : AutofacNancyBootstrapper
     {
-        /// <summary>
-        /// Used in the test web application; assumes that Web
-        /// </summary>
+        private readonly IContentProvider _contentProvider;
+
         public Bootstrapper()
-//            : this(DocumentFolder.Create(ConfigurationManager.AppSettings["RootFolder"]))
+            : this(CreateContentProvider(ConfigurationManager.AppSettings["RootFolder"]))
         {
         }
 
-#if false
-        public Bootstrapper(IDocumentFolder documentFolder)
+        private static IContentProvider CreateContentProvider(string rootDirectory)
         {
-            _documentFolder = documentFolder;
+            return new ContentProvider(new FileContentProvider(rootDirectory), new DefaultDocumentPolicy(),
+                                       rootDirectory);
         }
 
-        protected override void ConfigureApplicationContainer(TinyIoCContainer container)
+        public Bootstrapper(IContentProvider contentProvider)
         {
-            base.ConfigureApplicationContainer(container);
-
-            container.Register<IDocumentRenderer, DocumentRenderer>(new DocumentRenderer(_documentFolder));
+            _contentProvider = contentProvider;
         }
-#endif
 
-        protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
+        /// <summary>
+        /// Called when the application starts up. We use it to register the embedded-resource views.
+        /// TODO: Consider *not* embedding the views/content, so that they're more easily configurable.
+        /// </summary>
+        protected override void ApplicationStartup(ILifetimeScope container, IPipelines pipelines)
         {
             base.ApplicationStartup(container, pipelines);
 
             ResourceViewLocationProvider.RootNamespaces.Add(GetType().Assembly, "WelcomePage.Core.Views");
+        }
+
+        protected override ILifetimeScope GetApplicationContainer()
+        {
+            var builder = new ContainerBuilder();
+
+            builder.Register<IContentProvider>(_ => _contentProvider);
+            builder.RegisterType<MarkdownService>().AsImplementedInterfaces();
+            builder.RegisterType<DocumentRenderer>().AsImplementedInterfaces();
+            return builder.Build();
         }
 
         protected override void ConfigureConventions(NancyConventions nancyConventions)

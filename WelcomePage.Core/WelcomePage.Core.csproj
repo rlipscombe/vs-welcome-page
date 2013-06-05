@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Autofac.2.6.3.862\lib\net40\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Autofac.2.6.3.862\lib\net40\Autofac.Configuration.dll</HintPath>
+    </Reference>
     <Reference Include="ColorCode">
       <HintPath>..\packages\ColorCode.1.0.1\lib\ColorCode.dll</HintPath>
     </Reference>
@@ -45,6 +53,9 @@
     <Reference Include="Nancy">
       <HintPath>..\packages\Nancy.0.17.1\lib\net40\Nancy.dll</HintPath>
     </Reference>
+    <Reference Include="Nancy.Bootstrappers.Autofac">
+      <HintPath>..\packages\Nancy.Bootstrappers.Autofac.0.17.1\lib\net40\Nancy.Bootstrappers.Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -53,8 +64,9 @@
   <ItemGroup>
     <Compile Include="AttributeExtensions.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="ContentProvider.cs" />
     <Compile Include="DefaultDocumentNotFoundException.cs" />
-    <Compile Include="DocumentFolder.cs" />
+    <Compile Include="DefaultDocumentPolicy.cs" />
     <Compile Include="DocumentRenderer.cs" />
     <Compile Include="EmbeddedStaticContentsConventionBuilder.cs" />
     <Compile Include="ErrorHandler.cs" />

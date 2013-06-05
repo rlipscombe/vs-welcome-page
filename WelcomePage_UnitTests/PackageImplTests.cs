@@ -1,15 +1,15 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NUnit.Framework;
 using RogerLipscombe.WelcomePage;
 using WelcomePage.Core;
 
 namespace WelcomePage_UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class PackageImplTests
     {
-        [TestMethod]
+        [Test]
         public void CreateInstance()
         {
             var impl = new WelcomePageImpl(Mock.Of<ISolutionFolder>(), Mock.Of<IDefaultDocumentPolicy>(),
@@ -19,7 +19,7 @@ namespace WelcomePage_UnitTests
         /// <summary>
         /// If you open a solution and there's no readme file, then the server should not be started and the browser should not be opened.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void OpenSolutionWithNoReadMe()
         {
             // Arrange
@@ -47,7 +47,7 @@ namespace WelcomePage_UnitTests
         /// If you open a solution and there's a valid readme file, then the web server should be started,
         /// and the browser should be opened.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void OpenSolutionWithReadMe()
         {
             // Arrange
@@ -73,7 +73,7 @@ namespace WelcomePage_UnitTests
         /// <summary>
         /// If you use the menu item and there's a readme, then the browser should be opened.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void OpenWelcomePageWithReadMe()
         {
             // Arrange
@@ -102,7 +102,7 @@ namespace WelcomePage_UnitTests
         /// <summary>
         /// If you use the menu item and there's no readme, then the server should be started and the browser should be opened.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void OpenWelcomePageWithNoReadMe()
         {
             // Arrange
@@ -129,7 +129,7 @@ namespace WelcomePage_UnitTests
         /// <summary>
         /// If you use the menu item and there's no longer a readme, then the browser should be opened.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void OpenWelcomePageWithDeletedReadMe()
         {
             // Arrange
@@ -160,7 +160,7 @@ namespace WelcomePage_UnitTests
         /// <summary>
         /// If you use the menu item and there's a new readme, then the server should be started and the browser should be opened.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void OpenWelcomePageWithNewReadMe()
         {
             // Arrange
@@ -186,7 +186,30 @@ namespace WelcomePage_UnitTests
             itemOperations.Verify(x => x.Navigate(It.IsAny<string>()), Times.Once());
         }
 
-        [TestMethod]
+        [Test]
+        public void OpenWelcomePageWithNoSolution()
+        {
+            // Arrange
+            var itemOperations = new Mock<IItemOperations>();
+            var solutionFolder = new Mock<ISolutionFolder>();
+            var policy = new Mock<IDefaultDocumentPolicy>();
+            var rootFolder = @"Z:\some\path";
+            solutionFolder.Setup(x => x.GetDirectoryName())
+                          .Returns(rootFolder);
+            policy.Setup(x => x.ContainsDefaultDocument(It.IsAny<string>()))
+                  .Returns(true);
+            var server = new Mock<IWebServer>();
+            var impl = new WelcomePageImpl(solutionFolder.Object, policy.Object, itemOperations.Object, server.Object);
+
+            // Act
+            impl.OnViewWelcomePage();
+
+            // Assert
+            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.Once());
+            itemOperations.Verify(x => x.Navigate(It.IsAny<string>()), Times.Once());
+        }
+
+        [Test]
         public void CloseSolution()
         {
             // Arrange
@@ -209,7 +232,7 @@ namespace WelcomePage_UnitTests
             server.Verify(x => x.Stop(), Times.Once());
         }
 
-        [TestMethod]
+        [Test]
         public void DisposeStopsServer()
         {
             // Arrange

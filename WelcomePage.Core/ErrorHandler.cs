@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
 using Nancy;
+using Nancy.ErrorHandling;
 using Nancy.ViewEngines;
 
 namespace WelcomePage.Core
 {
-    public class ErrorHandler //: IStatusCodeHandler
+    public class ErrorHandler : IStatusCodeHandler
     {
         private readonly IViewFactory _viewFactory;
 

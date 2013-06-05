@@ -1,4 +1,5 @@
 ﻿using System;
+using Kiwi.Markdown.ContentProviders;
 using Nancy.Hosting.Self;
 using WelcomePage.Core;
 
@@ -12,7 +13,9 @@ namespace RogerLipscombe.WelcomePage
         {
             if (_host == null)
             {
-                var bootstrapper = new Bootstrapper();
+                var bootstrapper =
+                    new Bootstrapper(new ContentProvider(new FileContentProvider(rootFolder),
+                                                         new DefaultDocumentPolicy(), rootFolder));
                 var configuration = new HostConfiguration { RewriteLocalhost = false };
                 _host = new NancyHost(bootstrapper, configuration, url);
                 _host.Start();
