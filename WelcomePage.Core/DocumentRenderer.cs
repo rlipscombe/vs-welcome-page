@@ -21,6 +21,8 @@ namespace WelcomePage.Core
         {
             var document = _converter.GetDocument(name);
 
+            // BUG: Default document doesn't get a name displayed.
+
             // Kiwi.Markdown (or MarkdownSharp) doesn't appear to support [[Links]], so we'll do that here:
             var content = Regex.Replace(document.Content, @"\[\[(.*?)\]\]",
                                         m => string.Format("<a href=\"/{0}\">{0}</a>", m.Groups[1].Value));
