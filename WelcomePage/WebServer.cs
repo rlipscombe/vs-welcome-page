@@ -31,7 +31,9 @@ namespace RogerLipscombe.WelcomePage
 
         public void Dispose()
         {
-            Stop();
+            if (_host != null)
+                _host.Dispose();
+            _host = null;
         }
     }
 }
