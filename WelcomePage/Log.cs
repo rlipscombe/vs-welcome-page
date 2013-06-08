@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Microsoft.VisualStudio.Shell;
 
 namespace RogerLipscombe.WelcomePage
 {
@@ -7,6 +8,7 @@ namespace RogerLipscombe.WelcomePage
         public static void Message(string message)
         {
             Debug.WriteLine(message);
+            ActivityLog.LogInformation("WelcomePage", message);
         }
 
         public static void Message(string format, object arg0)

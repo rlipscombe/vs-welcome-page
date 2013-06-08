@@ -13,12 +13,16 @@ namespace RogerLipscombe.WelcomePage
         {
             if (_host == null)
             {
-                var bootstrapper =
-                    new Bootstrapper(new ContentProvider(new FileContentProvider(rootFolder),
-                                                         new DefaultDocumentPolicy(), rootFolder));
+                var contentProvider = new ContentProvider(new FileContentProvider(rootFolder),
+                                                          new DefaultDocumentPolicy(), rootFolder);
+                Log.Message("Content provider initialized; rootFolder = '{0}'.", rootFolder);
+                var bootstrapper = new Bootstrapper(contentProvider);
                 var configuration = new HostConfiguration { RewriteLocalhost = false };
                 _host = new NancyHost(bootstrapper, configuration, url);
+
+                Log.Message("Starting Nancy host on '{0}'.", url);
                 _host.Start();
+                Log.Message("Nancy host listening on '{0}'.", url);
             }
         }
 
