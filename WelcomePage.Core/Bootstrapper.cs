@@ -7,6 +7,7 @@ using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.Bootstrappers.Autofac;
 using Nancy.Conventions;
+using Nancy.Embedded.Conventions;
 using Nancy.ViewEngines;
 
 namespace WelcomePage.Core
@@ -57,7 +58,7 @@ namespace WelcomePage.Core
             base.ConfigureConventions(nancyConventions);
 
             nancyConventions.StaticContentsConventions.Add(
-                EmbeddedStaticContentsConventionBuilder.Add("/Content/", GetType().Assembly, "WelcomePage.Core.Content"));
+                EmbeddedStaticContentConventionBuilder.AddDirectory("/Content/", GetType().Assembly, "WelcomePage.Core.Content"));
         }
 
         /// <summary>
