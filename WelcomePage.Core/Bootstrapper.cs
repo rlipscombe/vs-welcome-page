@@ -1,18 +1,16 @@
-﻿using System;
-using System.Configuration;
-using Autofac;
+﻿using System.Configuration;
 using Kiwi.Markdown;
 using Kiwi.Markdown.ContentProviders;
 using Nancy;
 using Nancy.Bootstrapper;
-using Nancy.Bootstrappers.Autofac;
 using Nancy.Conventions;
 using Nancy.Embedded.Conventions;
+using Nancy.TinyIoc;
 using Nancy.ViewEngines;
 
 namespace WelcomePage.Core
 {
-    public class Bootstrapper : AutofacNancyBootstrapper
+    public class Bootstrapper : DefaultNancyBootstrapper
     {
         private readonly IContentProvider _contentProvider;
 
@@ -36,21 +34,20 @@ namespace WelcomePage.Core
         /// Called when the application starts up. We use it to register the embedded-resource views.
         /// TODO: Consider *not* embedding the views/content, so that they're more easily configurable.
         /// </summary>
-        protected override void ApplicationStartup(ILifetimeScope container, IPipelines pipelines)
+        protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
         {
             base.ApplicationStartup(container, pipelines);
 
             ResourceViewLocationProvider.RootNamespaces.Add(GetType().Assembly, "WelcomePage.Core.Views");
         }
 
-        protected override ILifetimeScope GetApplicationContainer()
+        protected override void ConfigureApplicationContainer(TinyIoCContainer container)
         {
-            var builder = new ContainerBuilder();
+            base.ConfigureApplicationContainer(container);
 
-            builder.Register<IContentProvider>(_ => _contentProvider);
-            builder.RegisterType<MarkdownService>().AsImplementedInterfaces();
-            builder.RegisterType<DocumentRenderer>().AsImplementedInterfaces();
-            return builder.Build();
+            container.Register<IContentProvider>((c, p) => _contentProvider);
+            container.Register<IMarkdownService, MarkdownService>();
+            container.Register<IDocumentRenderer, DocumentRenderer>();
         }
 
         protected override void ConfigureConventions(NancyConventions nancyConventions)
