@@ -67,9 +67,7 @@
     <Compile Include="RenderedDocument.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\markdownpad-github.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Content\markdownpad-github.css" />
     <EmbeddedResource Include="Views\Errors\404.html" />
     <EmbeddedResource Include="Views\Errors\500.html" />
     <EmbeddedResource Include="Views\Home\About.html" />
