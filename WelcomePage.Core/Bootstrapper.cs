@@ -55,7 +55,7 @@ namespace WelcomePage.Core
             base.ConfigureConventions(nancyConventions);
 
             nancyConventions.StaticContentsConventions.Add(
-                EmbeddedStaticContentConventionBuilder.AddDirectory("/Content/", GetType().Assembly, "WelcomePage.Core.Content"));
+                EmbeddedStaticContentConventionBuilder.AddDirectory("Content", GetType().Assembly));
         }
 
         /// <summary>
