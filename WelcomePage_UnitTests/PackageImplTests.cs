@@ -9,6 +9,9 @@ namespace WelcomePage_UnitTests
     [TestFixture]
     public class PackageImplTests
     {
+        /// <summary>
+        /// Quick smoke test -- can it actually be constructed?
+        /// </summary>
         [Test]
         public void CreateInstance()
         {
@@ -17,7 +20,7 @@ namespace WelcomePage_UnitTests
         }
 
         /// <summary>
-        /// If you open a solution and there's no readme file, then the server should not be started and the browser should not be opened.
+        /// If you open a solution and there's no readme file, then the server may not be started and the browser should not be opened.
         /// </summary>
         [Test]
         public void OpenSolutionWithNoReadMe()
@@ -186,6 +189,9 @@ namespace WelcomePage_UnitTests
             itemOperations.Verify(x => x.Navigate(It.IsAny<string>()), Times.Once());
         }
 
+        /// <summary>
+        /// Invoking the menu item with no solution open should result in nothing happening.
+        /// </summary>
         [Test]
         public void OpenWelcomePageWithNoSolution()
         {
@@ -205,10 +211,14 @@ namespace WelcomePage_UnitTests
             impl.OnViewWelcomePage();
 
             // Assert
-            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.Once());
-            itemOperations.Verify(x => x.Navigate(It.IsAny<string>()), Times.Once());
+            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.AtMostOnce());
+            itemOperations.Verify(x => x.Navigate(It.IsAny<string>()), Times.Never());
         }
 
+        /// <summary>
+        /// Closing the solution should stop the web server.
+        /// TODO: It should also close the browser.
+        /// </summary>
         [Test]
         public void CloseSolution()
         {
