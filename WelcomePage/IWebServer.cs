@@ -2,7 +2,7 @@
 
 namespace RogerLipscombe.WelcomePage
 {
-    public interface IWebServer
+    public interface IWebServer : IDisposable
     {
         void Start(Uri url, string rootFolder);
         void Stop();

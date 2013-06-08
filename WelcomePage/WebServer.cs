@@ -5,7 +5,7 @@ using WelcomePage.Core;
 
 namespace RogerLipscombe.WelcomePage
 {
-    public class WebServer : IWebServer
+    public sealed class WebServer : IWebServer
     {
         private NancyHost _host;
 
@@ -27,6 +27,11 @@ namespace RogerLipscombe.WelcomePage
             if (_host != null)
                 _host.Stop();
             _host = null;
+        }
+
+        public void Dispose()
+        {
+            Stop();
         }
     }
 }
