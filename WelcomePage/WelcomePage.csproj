@@ -126,7 +126,6 @@
   <ItemGroup>
     <Compile Include="GuidList.cs" />
     <Compile Include="IItemOperations.cs" />
-    <Compile Include="IsolatedWebServer.cs" />
     <Compile Include="ISolutionFolder.cs" />
     <Compile Include="ItemOperationsWrapper.cs" />
     <Compile Include="IWebServer.cs" />
