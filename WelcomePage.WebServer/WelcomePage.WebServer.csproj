@@ -77,14 +77,19 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  
   <Target Name="CreateAssetZip">
     <ItemGroup>
       <Zip Include="$(OutputPath)\WelcomePage.WebServer.exe" />
       <Zip Include="$(OutputPath)\WelcomePage.WebServer.exe.config" />
       <Zip Include="$(OutputPath)\*.dll" />
+      <Zip Include="$(OutputPath)\Content\**" />
+      <Zip Include="$(OutputPath)\Views\**" />
+      <Zip Include="$(OutputPath)\favicon.ico" />
     </ItemGroup>
     <MSBuild.ExtensionPack.Compression.Zip TaskAction="Create" ZipFileName="$(OutputPath)\WelcomePage.WebServer.zip" CompressFiles="@(Zip)" RemoveRoot="$(OutputPath)" CompressionLevel="BestCompression" />
   </Target>
+  
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

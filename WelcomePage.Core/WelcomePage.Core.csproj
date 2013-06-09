@@ -60,7 +60,6 @@
     <Compile Include="DefaultDocumentNotFoundException.cs" />
     <Compile Include="DefaultDocumentPolicy.cs" />
     <Compile Include="DocumentRenderer.cs" />
-    <Compile Include="EmbeddedStaticContentsConventionBuilder.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="HomeModule.cs" />
     <Compile Include="IDefaultDocumentPolicy.cs" />
@@ -70,14 +69,26 @@
     <Compile Include="RenderedDocument.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\markdownpad-github.css" />
-    <EmbeddedResource Include="Views\Errors\404.html" />
-    <EmbeddedResource Include="Views\Errors\500.html" />
-    <EmbeddedResource Include="Views\Home\About.html" />
-    <EmbeddedResource Include="Views\Home\Index.html" />
+    <Content Include="Content\markdownpad-github.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Errors\404.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Errors\500.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Home\About.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Home\Index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\favicon.ico" />
+    <Content Include="favicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
