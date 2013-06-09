@@ -32,9 +32,10 @@ namespace RogerLipscombe.WelcomePage
             _url = GenerateUrl();
 
             // Start the web server.
-            _server.Start(_url, _solutionFolder.GetDirectoryName());
+            string solutionDirectoryName = _solutionFolder.GetDirectoryName();
+            _server.Start(_url, solutionDirectoryName);
 
-            if (_defaultDocumentPolicy.ContainsDefaultDocument(_solutionFolder.GetDirectoryName()))
+            if (_defaultDocumentPolicy.ContainsDefaultDocument(solutionDirectoryName))
             {
                 // Open the web browser.
                 Navigate(_url);

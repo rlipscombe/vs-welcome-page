@@ -5,7 +5,7 @@ using WelcomePage.Core;
 
 namespace RogerLipscombe.WelcomePage
 {
-    public sealed class WebServer : IWebServer
+    public sealed class WebServer : MarshalByRefObject, IWebServer
     {
         private NancyHost _host;
 

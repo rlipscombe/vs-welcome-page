@@ -7,7 +7,7 @@ using WelcomePage.Core;
 namespace WelcomePage_UnitTests
 {
     [TestFixture]
-    public class WebServerTests
+    public class BootstrapperTests
     {
         [Test]
         public void HomePage()
@@ -26,22 +26,4 @@ namespace WelcomePage_UnitTests
             Assert.IsNotNull(response);
         }
     }
-
-
-    //[TestFixture]
-    //public class ContentProviderTests
-    //{
-    //    [Test]
-    //    public void MissingDefaultDocument()
-    //    {
-    //        // Arrange
-    //        var inner = new Mock<IContentProvider>(MockBehavior.Strict);
-    //        var policy = new Mock<IDefaultDocumentPolicy>(MockBehavior.Strict);
-    //        policy.Setup(x => x.GetDefaultDocument(It.IsAny<string>())).Returns((string) null);
-    //        var contentProvider = new ContentProvider(inner.Object, policy.Object, @"Z:\some\path");
-
-    //        // Act/Assert
-    //        Assert.Throws<DefaultDocumentNotFoundException>(() => contentProvider.GetContent(""));
-    //    }
-    //}
 }

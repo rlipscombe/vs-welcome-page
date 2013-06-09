@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Microsoft.VisualStudio.Shell;
 
 namespace RogerLipscombe.WelcomePage
@@ -8,7 +9,20 @@ namespace RogerLipscombe.WelcomePage
         public static void Message(string message)
         {
             Debug.WriteLine(message);
-            ActivityLog.LogInformation("WelcomePage", message);
+            IgnoreExceptions(() => ActivityLog.LogInformation("WelcomePage", message));
+        }
+
+        private static void IgnoreExceptions(Action action)
+        {
+            // ReSharper disable EmptyGeneralCatchClause
+            try
+            {
+                action();
+            }
+            catch
+            {
+            }
+            // ReSharper restore EmptyGeneralCatchClause
         }
 
         public static void Message(string format, object arg0)
