@@ -77,6 +77,7 @@
     <EmbeddedResource Include="Views\Home\Index.html" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Content\favicon.ico" />
     <Content Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

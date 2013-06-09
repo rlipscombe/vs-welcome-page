@@ -11,6 +11,9 @@ namespace RogerLipscombe.WelcomePage
 
         public void Start(Uri url, string rootFolder)
         {
+            if (_process != null && !_process.HasExited)
+                return;
+
             // Figure out where the web application binaries are.
             string directoryName = Path.GetDirectoryName(typeof(WelcomePagePackage).Assembly.Location);
             var webApplicationAssets = Path.Combine(directoryName, "WelcomePage.WebServer.zip");
@@ -21,9 +24,6 @@ namespace RogerLipscombe.WelcomePage
             ExtractWebAppFiles(webApplicationAssets, instanceDirectory);
 
             var fileName = Path.Combine(instanceDirectory, "WelcomePage.WebServer.exe");
-
-            if (_process != null && !_process.HasExited)
-                return;
 
             var startInfo = new ProcessStartInfo
                 {

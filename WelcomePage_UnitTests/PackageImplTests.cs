@@ -29,7 +29,7 @@ namespace WelcomePage_UnitTests
             var itemOperations = new Mock<IItemOperations>();
             var solutionFolder = new Mock<ISolutionFolder>();
             var policy = new Mock<IDefaultDocumentPolicy>();
-            var rootFolder = @"Z:\some\path";
+            const string rootFolder = @"Z:\some\path";
             solutionFolder.Setup(x => x.GetDirectoryName())
                           .Returns(rootFolder);
             policy.Setup(x => x.ContainsDefaultDocument(It.IsAny<string>()))
@@ -57,7 +57,7 @@ namespace WelcomePage_UnitTests
             var itemOperations = new Mock<IItemOperations>();
             var solutionFolder = new Mock<ISolutionFolder>();
             var policy = new Mock<IDefaultDocumentPolicy>();
-            var rootFolder = @"Z:\some\path";
+            const string rootFolder = @"Z:\some\path";
             solutionFolder.Setup(x => x.GetDirectoryName())
                           .Returns(rootFolder);
             policy.Setup(x => x.ContainsDefaultDocument(It.IsAny<string>()))
@@ -83,7 +83,7 @@ namespace WelcomePage_UnitTests
             var itemOperations = new Mock<IItemOperations>();
             var solutionFolder = new Mock<ISolutionFolder>();
             var policy = new Mock<IDefaultDocumentPolicy>();
-            var rootFolder = @"Z:\some\path";
+            const string rootFolder = @"Z:\some\path";
             solutionFolder.Setup(x => x.GetDirectoryName())
                           .Returns(rootFolder);
             policy.Setup(x => x.ContainsDefaultDocument(It.IsAny<string>()))
@@ -112,7 +112,7 @@ namespace WelcomePage_UnitTests
             var itemOperations = new Mock<IItemOperations>();
             var solutionFolder = new Mock<ISolutionFolder>();
             var policy = new Mock<IDefaultDocumentPolicy>();
-            var rootFolder = @"Z:\some\path";
+            const string rootFolder = @"Z:\some\path";
             solutionFolder.Setup(x => x.GetDirectoryName())
                           .Returns(rootFolder);
             policy.Setup(x => x.ContainsDefaultDocument(It.IsAny<string>()))
@@ -139,7 +139,7 @@ namespace WelcomePage_UnitTests
             var itemOperations = new Mock<IItemOperations>();
             var solutionFolder = new Mock<ISolutionFolder>();
             var policy = new Mock<IDefaultDocumentPolicy>();
-            var rootFolder = @"Z:\some\path";
+            const string rootFolder = @"Z:\some\path";
             solutionFolder.Setup(x => x.GetDirectoryName())
                           .Returns(rootFolder);
             policy.Setup(x => x.ContainsDefaultDocument(It.IsAny<string>()))
@@ -170,7 +170,7 @@ namespace WelcomePage_UnitTests
             var itemOperations = new Mock<IItemOperations>();
             var solutionFolder = new Mock<ISolutionFolder>();
             var policy = new Mock<IDefaultDocumentPolicy>();
-            var rootFolder = @"Z:\some\path";
+            const string rootFolder = @"Z:\some\path";
             solutionFolder.Setup(x => x.GetDirectoryName())
                           .Returns(rootFolder);
             policy.Setup(x => x.ContainsDefaultDocument(It.IsAny<string>()))
@@ -199,7 +199,7 @@ namespace WelcomePage_UnitTests
             var itemOperations = new Mock<IItemOperations>();
             var solutionFolder = new Mock<ISolutionFolder>();
             var policy = new Mock<IDefaultDocumentPolicy>();
-            var rootFolder = @"Z:\some\path";
+            const string rootFolder = @"Z:\some\path";
             solutionFolder.Setup(x => x.GetDirectoryName())
                           .Returns(rootFolder);
             policy.Setup(x => x.ContainsDefaultDocument(It.IsAny<string>()))
@@ -226,7 +226,7 @@ namespace WelcomePage_UnitTests
             var itemOperations = new Mock<IItemOperations>();
             var solutionFolder = new Mock<ISolutionFolder>();
             var policy = new Mock<IDefaultDocumentPolicy>();
-            var rootFolder = @"Z:\some\path";
+            const string rootFolder = @"Z:\some\path";
             solutionFolder.Setup(x => x.GetDirectoryName())
                           .Returns(rootFolder);
             policy.Setup(x => x.ContainsDefaultDocument(It.IsAny<string>()))

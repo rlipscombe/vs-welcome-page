@@ -11,15 +11,15 @@ namespace WelcomePage.Core
         {
             _renderer = renderer;
 
-            Get["/"] = context =>
+            Get["/"] = x =>
                 {
                     var document = _renderer.GetDefaultDocument();
                     return ViewDocument(document);
                 };
 
-            Get["/{path*}"] = context =>
+            Get["/{path*}"] = x =>
                 {
-                    string path = context.Path;
+                    string path = x.Path;
                     var document = _renderer.GetDocument(path);
                     return ViewDocument(document);
                 };

@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Shell;
 namespace RogerLipscombe.WelcomePage
 {
     [PackageRegistration(UseManagedResourcesOnly = true)]
-    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
+    [InstalledProductRegistration("#110", "#112", "1.2", IconResourceID = 400)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     // We need to load early enough to be able to hook solution events.
     // VSConstants.UICONTEXT_NoSolution
@@ -85,7 +85,7 @@ namespace RogerLipscombe.WelcomePage
             IVsUIShell uiShell = (IVsUIShell) GetService(typeof (SVsUIShell));
             Guid clsid = Guid.Empty;
             int result;
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
+            ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
                 0,
                 ref clsid,
                 pszTitle,

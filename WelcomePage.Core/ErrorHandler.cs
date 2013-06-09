@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Nancy;
 using Nancy.ErrorHandling;
@@ -8,6 +9,8 @@ namespace WelcomePage.Core
 {
     public class ErrorHandler : IStatusCodeHandler
     {
+        private static readonly TraceSource Trace = new TraceSource("WelcomePage.Core");
+
         private readonly IViewFactory _viewFactory;
 
         public ErrorHandler(IViewFactory viewFactory)
@@ -25,12 +28,15 @@ namespace WelcomePage.Core
 
         public void Handle(HttpStatusCode statusCode, NancyContext context)
         {
+            Trace.TraceInformation("ErrorHandler.Handle(statusCode = {0})", statusCode);
+
             object errorObject;
             context.Items.TryGetValue(NancyEngine.ERROR_EXCEPTION, out errorObject);
 
             var exception = errorObject as Exception;
             if (exception != null)
             {
+                Trace.TraceInformation("exception = {0}", exception);
                 if (exception is RequestExecutionException)
                     exception = exception.InnerException;
 
