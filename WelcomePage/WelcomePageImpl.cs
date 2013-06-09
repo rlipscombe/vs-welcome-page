@@ -2,7 +2,7 @@
 
 namespace RogerLipscombe.WelcomePage
 {
-    public class WelcomePageImpl : IDisposable
+    public sealed class WelcomePageImpl : IDisposable
     {
         private readonly ISolutionFolder _solutionFolder;
         private readonly IDefaultDocumentPolicy _defaultDocumentPolicy;
@@ -67,6 +67,10 @@ namespace RogerLipscombe.WelcomePage
             // TODO: The menu item should be disabled; this'll do for now.
             if (_url == null)
                 return;
+
+            // If the server's not running, restart it:
+            string solutionDirectoryName = _solutionFolder.GetDirectoryName();
+            _server.Start(_url, solutionDirectoryName);
 
             // Open the web browser.
             Navigate(_url);
