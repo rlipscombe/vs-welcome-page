@@ -11,14 +11,15 @@ namespace WelcomePage.WebServer
     {
         private static void Main(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length != 2 && args.Length != 3)
             {
-                Console.WriteLine("WelcomePage.WebServer url root-directory");
+                Console.WriteLine("WelcomePage.WebServer url root-directory [-open]");
                 return;
             }
 
             var url = new Uri(args[0]);
             var rootDirectory = args[1];
+            bool openBrowser = args.Length == 3 && args[2].Equals("-open", StringComparison.InvariantCultureIgnoreCase);
 
             var stop = new ManualResetEvent(false);
             Console.CancelKeyPress += (sender, e) =>
@@ -37,7 +38,8 @@ namespace WelcomePage.WebServer
             host.Start();
             Console.WriteLine("Nancy host listening on '{0}'. Press Ctrl+C to quit.", url);
 
-            Process.Start(url.ToString());
+            if (openBrowser)
+                Process.Start(url.ToString());
 
             stop.WaitOne();
 
