@@ -126,6 +126,9 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="GuidList.cs" />
     <Compile Include="IItemOperations.cs" />
     <Compile Include="ISolutionFolder.cs" />

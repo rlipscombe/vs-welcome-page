@@ -51,6 +51,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="AttributeExtensions.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="ContentProvider.cs" />
