@@ -1,41 +1,45 @@
 ﻿using System;
-using WelcomePage.Core;
+using System.Diagnostics;
 
 namespace RogerLipscombe.WelcomePage
 {
     public sealed class WebServer : MarshalByRefObject, IWebServer
     {
-        //private NancyHost _host;
+        private Process _process;
 
         public void Start(Uri url, string rootFolder)
         {
-            //if (_host == null)
-            //{
-            //    var contentProvider = new ContentProvider(new FileContentProvider(rootFolder),
-            //                                              new DefaultDocumentPolicy(), rootFolder);
-            //    Log.Message("Content provider initialized; rootFolder = '{0}'.", rootFolder);
-            //    var bootstrapper = new Bootstrapper(contentProvider);
-            //    var configuration = new HostConfiguration { RewriteLocalhost = false };
-            //    _host = new NancyHost(bootstrapper, configuration, url);
+            // TODO: Extract server from assets.
+            var fileName = @"D:\Source\vs-welcome-page\WelcomePage.WebServer\bin\Debug\WelcomePage.WebServer.exe";
+            
+            if (_process != null && !_process.HasExited)
+                return;
 
-            //    Log.Message("Starting Nancy host on '{0}'.", url);
-            //    _host.Start();
-            //    Log.Message("Nancy host listening on '{0}'.", url);
-            //}
+            var startInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = string.Format("{0} \"{1}\"", url, rootFolder),
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+
+            _process = Process.Start(startInfo);
+            Log.Message("Web Server started ({0} {1}). Process ID = {2}.",
+                        startInfo.FileName, startInfo.Arguments, _process.Id);
         }
 
         public void Stop()
         {
-            //if (_host != null)
-            //    _host.Stop();
-            //_host = null;
+            if (_process != null)
+            {
+                _process.Kill();
+                _process.WaitForExit(milliseconds: 1000);
+                _process = null;
+            }
         }
 
         public void Dispose()
         {
-            //if (_host != null)
-            //    _host.Dispose();
-            //_host = null;
+            Stop();
         }
     }
 }
