@@ -1,11 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
 using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
-using WelcomePage.Core;
 
 namespace RogerLipscombe.WelcomePage
 {
@@ -158,6 +158,14 @@ namespace RogerLipscombe.WelcomePage
 
             // TODO: If the web browser is open, and pointing at the readme, close the window.
             return VSConstants.S_OK;
+        }
+    }
+
+    public class DefaultDocumentPolicy : IDefaultDocumentPolicy
+    {
+        public bool ContainsDefaultDocument(string solutionDirectoryName)
+        {
+            return File.Exists(Path.Combine(solutionDirectoryName, "README.md"));
         }
     }
 }

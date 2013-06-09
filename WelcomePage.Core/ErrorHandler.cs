@@ -40,7 +40,6 @@ namespace WelcomePage.Core
 
         private void Handle(Exception exception, NancyContext context)
         {
-            // TODO: Also DirectoryNotFoundException.
             var fileNotFoundException = exception as FileNotFoundException;
             if (fileNotFoundException != null)
             {

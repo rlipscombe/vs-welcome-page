@@ -2,7 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using RogerLipscombe.WelcomePage;
-using WelcomePage.Core;
+using IDefaultDocumentPolicy = RogerLipscombe.WelcomePage.IDefaultDocumentPolicy;
 
 namespace WelcomePage_UnitTests
 {

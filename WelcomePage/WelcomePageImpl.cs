@@ -1,5 +1,4 @@
 ﻿using System;
-using WelcomePage.Core;
 
 namespace RogerLipscombe.WelcomePage
 {
@@ -79,5 +78,12 @@ namespace RogerLipscombe.WelcomePage
 
             _server.Stop();
         }
+    }
+
+    // TODO: Find some way to merge this with the one in Core, without bringing in the rest
+    // of the references.
+    public interface IDefaultDocumentPolicy
+    {
+        bool ContainsDefaultDocument(string solutionDirectoryName);
     }
 }
