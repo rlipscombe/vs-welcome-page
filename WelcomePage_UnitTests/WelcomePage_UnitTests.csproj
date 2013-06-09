@@ -81,7 +81,6 @@
     <Compile Include="PackageImplTests.cs" />
     <Compile Include="PackageTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IsolatedWebServerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WelcomePage.Core\WelcomePage.Core.csproj">
