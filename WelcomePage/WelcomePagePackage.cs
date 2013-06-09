@@ -5,7 +5,6 @@ using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
-using Nancy.Hosting.Self;
 using WelcomePage.Core;
 
 namespace RogerLipscombe.WelcomePage
