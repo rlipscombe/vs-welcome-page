@@ -9,6 +9,8 @@ using Microsoft.VisualStudio.Shell;
 
 namespace RogerLipscombe.WelcomePage
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable",
+        Justification = "Dispose(true) is called when the VSPackage is being destroyed by Visual Studio.")]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.2", IconResourceID = 400)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
