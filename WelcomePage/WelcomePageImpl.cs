@@ -30,8 +30,12 @@ namespace RogerLipscombe.WelcomePage
         {
             _url = GenerateUrl();
 
-            // Start the web server.
+            // Figure out where the solution lives; if it's blank, we don't know => leave it until later.
             string solutionDirectoryName = _solutionFolder.GetDirectoryName();
+            if (string.IsNullOrWhiteSpace(solutionDirectoryName))
+                return;
+
+            // Start the web server.
             _server.Start(_url, solutionDirectoryName);
 
             if (_defaultDocumentPolicy.ContainsDefaultDocument(solutionDirectoryName))
