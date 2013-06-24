@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="947a85ca-9a1e-45e4-86bd-e0c4ef3eda66" Version="1.2" Language="en-US" Publisher="Roger Lipscombe" />
+    <Identity Id="947a85ca-9a1e-45e4-86bd-e0c4ef3eda66" Version="1.2.1.0" Language="en-US" Publisher="Roger Lipscombe" />
     <DisplayName>WelcomePage</DisplayName>
     <Description>Displays a welcome page when opening a solution in Visual Studio.</Description>
     <MoreInfo>http://bit.ly/13pjBcN</MoreInfo>

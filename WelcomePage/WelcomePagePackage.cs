@@ -12,7 +12,7 @@ namespace RogerLipscombe.WelcomePage
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable",
         Justification = "Dispose(true) is called when the VSPackage is being destroyed by Visual Studio.")]
     [PackageRegistration(UseManagedResourcesOnly = true)]
-    [InstalledProductRegistration("#110", "#112", "1.2", IconResourceID = 400)]
+    [InstalledProductRegistration("#110", "#112", "1.2.1.0", IconResourceID = 400)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     // We need to load early enough to be able to hook solution events.
     // VSConstants.UICONTEXT_NoSolution
