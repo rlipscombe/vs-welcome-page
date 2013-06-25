@@ -2,7 +2,6 @@
 {
     public interface IDocumentFolder
     {
-        string RootDirectory { get; }
-        string FindDefaultDocumentId();
+        string ReadAllText(string name);
     }
 }

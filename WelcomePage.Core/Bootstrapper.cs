@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Kiwi.Markdown;
 using Nancy;
 using Nancy.TinyIoc;
 
@@ -9,11 +8,11 @@ namespace WelcomePage.Core
     {
         private static readonly TraceSource Trace = new TraceSource("WelcomePage.Core");
 
-        private readonly IContentProvider _contentProvider;
+        private readonly string _rootDirectory;
 
-        public Bootstrapper(IContentProvider contentProvider)
+        public Bootstrapper(string rootDirectory)
         {
-            _contentProvider = contentProvider;
+            _rootDirectory = rootDirectory;
         }
 
         protected override void ConfigureApplicationContainer(TinyIoCContainer container)
@@ -21,13 +20,12 @@ namespace WelcomePage.Core
             Trace.TraceInformation("Bootstrapper.ConfigureApplicationContainer");
             base.ConfigureApplicationContainer(container);
 
-            container.Register<IContentProvider>((c, p) => _contentProvider);
-            container.Register<IMarkdownService, MarkdownService>();
-            container.Register<IDocumentRenderer, DocumentRenderer>();
+            container.Register<IDocumentFolder>((c,p)=> new DocumentFolder(_rootDirectory));
         }
-        
+
         protected override IRootPathProvider RootPathProvider
         {
+            // TODO: Do we need this? If so, put a comment on it.
             get { return new DefaultRootPathProvider(); }
         }
     }

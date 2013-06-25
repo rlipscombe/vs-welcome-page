@@ -97,8 +97,8 @@ namespace WelcomePage_UnitTests
 
             // Assert
             // Server should be started.
-            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.Once());
-            // Browser should be opened twice: once for soltion, once for menu item.
+            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.AtLeastOnce());
+            // Browser should be opened twice: once for solution, once for menu item.
             itemOperations.Verify(x => x.Navigate(It.IsAny<string>()), Times.Exactly(2));
         }
 
@@ -125,7 +125,7 @@ namespace WelcomePage_UnitTests
             impl.OnViewWelcomePage();
 
             // Assert
-            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.Once());
+            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.AtLeastOnce());
             itemOperations.Verify(x => x.Navigate(It.IsAny<string>()), Times.Once());
         }
 
@@ -155,7 +155,7 @@ namespace WelcomePage_UnitTests
 
             // Assert
             // Server should be started.
-            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.Once());
+            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.AtLeastOnce());
             // Browser should be opened twice -- once for the initial solution opening, and again for the menu item.
             itemOperations.Verify(x => x.Navigate(It.IsAny<string>()), Times.Exactly(2));
         }
@@ -185,7 +185,7 @@ namespace WelcomePage_UnitTests
             impl.OnViewWelcomePage();
 
             // Assert
-            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.Once());
+            server.Verify(x => x.Start(It.IsAny<Uri>(), rootFolder), Times.AtLeastOnce());
             itemOperations.Verify(x => x.Navigate(It.IsAny<string>()), Times.Once());
         }
 

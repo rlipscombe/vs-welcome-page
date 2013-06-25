@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using Kiwi.Markdown.ContentProviders;
 using Nancy.Hosting.Self;
 using WelcomePage.Core;
 
@@ -28,12 +27,8 @@ namespace WelcomePage.WebServer
                     stop.Set();
                 };
 
-            var innerProvider = new FileContentProvider(rootDirectory);
-            var defaultDocumentPolicy = new DefaultDocumentPolicy();
-            var contentProvider = new ContentProvider(innerProvider, defaultDocumentPolicy, rootDirectory);
-
-            var bootstrapper = new Bootstrapper(contentProvider);
-            var configuration = new HostConfiguration {RewriteLocalhost = false};
+            var bootstrapper = new Bootstrapper(rootDirectory);
+            var configuration = new HostConfiguration { RewriteLocalhost = false };
             var host = new NancyHost(bootstrapper, configuration, url);
             host.Start();
             Console.WriteLine("Nancy host listening on '{0}'. Press Ctrl+C to quit.", url);

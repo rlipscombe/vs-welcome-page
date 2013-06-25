@@ -1,29 +1,29 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using MarkdownDeep;
 using Nancy;
-using Nancy.Responses.Negotiation;
 
 namespace WelcomePage.Core
 {
     public class HomeModule : NancyModule
     {
-        private readonly IDocumentRenderer _renderer;
-
-        public HomeModule(IDocumentRenderer renderer)
+        public HomeModule(IDocumentFolder documentFolder)
         {
-            _renderer = renderer;
-
             Get["/"] = x =>
                 {
-                    var document = _renderer.GetDefaultDocument();
-                    return ViewDocument(document);
+                    var converter = new Markdown();
+                    var markdown = documentFolder.ReadAllText("README");
+                    var html = converter.Transform(markdown);
+                    return View["Index", new { Title = "README", Content = html }];
                 };
 
             Get["/{path*}"] = x =>
                 {
                     string path = x.Path;
-                    var document = _renderer.GetDocument(path);
-                    return ViewDocument(document);
+                    var converter = new Markdown();
+                    var markdown = documentFolder.ReadAllText(path);
+                    var html = converter.Transform(markdown);
+                    return View["Index", new { Title = path, Content = html }];
                 };
 
             Get["/_About"] = x =>
@@ -46,16 +46,6 @@ namespace WelcomePage.Core
                             };
                     return View["About", model];
                 };
-        }
-
-        private Negotiator ViewDocument(RenderedDocument document)
-        {
-            var model = new
-                {
-                    document.Title,
-                    document.Content
-                };
-            return View["Index", model];
         }
     }
 }

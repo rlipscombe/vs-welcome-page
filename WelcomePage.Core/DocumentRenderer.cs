@@ -1,32 +1,19 @@
-﻿using System.Text.RegularExpressions;
-using Kiwi.Markdown;
+﻿using System.IO;
 
 namespace WelcomePage.Core
 {
-    public class DocumentRenderer : IDocumentRenderer
+    public class DocumentFolder : IDocumentFolder
     {
-        private readonly IMarkdownService _converter;
-        
-        public DocumentRenderer(IMarkdownService converter)
+        private readonly string _rootDirectory;
+
+        public DocumentFolder(string rootDirectory)
         {
-            _converter = converter;
+            _rootDirectory = rootDirectory;
         }
 
-        public RenderedDocument GetDefaultDocument()
+        public string ReadAllText(string name)
         {
-            return GetDocument(string.Empty);
-        }
-
-        public RenderedDocument GetDocument(string name)
-        {
-            var document = _converter.GetDocument(name);
-
-            // BUG: Default document doesn't get a name displayed.
-
-            // Kiwi.Markdown (or MarkdownSharp) doesn't appear to support [[Links]], so we'll do that here:
-            var content = Regex.Replace(document.Content, @"\[\[(.*?)\]\]",
-                                        m => string.Format("<a href=\"/{0}\">{0}</a>", m.Groups[1].Value));
-            return new RenderedDocument { Title = document.Title, Content = content };
+            return File.ReadAllText(Path.Combine(_rootDirectory, name + ".md"));
         }
     }
 }

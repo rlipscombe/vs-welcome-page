@@ -33,14 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ColorCode">
-      <HintPath>..\packages\ColorCode.1.0.1\lib\ColorCode.dll</HintPath>
-    </Reference>
-    <Reference Include="Kiwi.Markdown">
-      <HintPath>..\packages\Kiwi.Markdown.0.8.2\lib\net40\Kiwi.Markdown.dll</HintPath>
-    </Reference>
-    <Reference Include="MarkdownSharp">
-      <HintPath>..\packages\MarkdownSharp.1.13.0.0\lib\35\MarkdownSharp.dll</HintPath>
+    <Reference Include="MarkdownDeep">
+      <HintPath>..\packages\MarkdownDeep.NET.1.5\lib\.NetFramework 3.5\MarkdownDeep.dll</HintPath>
     </Reference>
     <Reference Include="Nancy">
       <HintPath>..\packages\Nancy.0.17.1\lib\net40\Nancy.dll</HintPath>
@@ -56,17 +50,12 @@
     </Compile>
     <Compile Include="AttributeExtensions.cs" />
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="ContentProvider.cs" />
     <Compile Include="DefaultDocumentNotFoundException.cs" />
-    <Compile Include="DefaultDocumentPolicy.cs" />
     <Compile Include="DocumentRenderer.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="HomeModule.cs" />
-    <Compile Include="IDefaultDocumentPolicy.cs" />
     <Compile Include="IDocumentFolder.cs" />
-    <Compile Include="IDocumentRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RenderedDocument.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\markdownpad-github.css">
