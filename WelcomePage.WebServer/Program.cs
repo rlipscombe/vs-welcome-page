@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
-using Nancy.Hosting.Self;
 using WelcomePage.Core;
 
 namespace WelcomePage.WebServer
@@ -12,7 +12,11 @@ namespace WelcomePage.WebServer
         {
             if (args.Length != 2 && args.Length != 3)
             {
-                Console.WriteLine("WelcomePage.WebServer url root-directory [-open]");
+                Console.WriteLine(@"Usage:");
+                Console.WriteLine(@"  WelcomePage.WebServer url root-directory [-open]");
+                Console.WriteLine();
+                Console.WriteLine(@"Example:");
+                Console.WriteLine(@"  WelcomePage.WebServer http://localhost:12540 C:\Users\roger\Source\vs-welcome-page\WelcomePage_UnitTests\Samples -open");
                 return;
             }
 
@@ -25,20 +29,25 @@ namespace WelcomePage.WebServer
                 {
                     Console.WriteLine("^C");
                     stop.Set();
+
+                    // Don't run the default shutdown.
+                    e.Cancel = true;
                 };
 
-            var bootstrapper = new Bootstrapper(rootDirectory);
-            var configuration = new HostConfiguration { RewriteLocalhost = false };
-            var host = new NancyHost(bootstrapper, configuration, url);
-            host.Start();
+            var domain = AppDomain.CreateDomain("WelcomePage.WebServer");
+            var server =
+                (IServer)
+                domain.CreateInstanceAndUnwrap("WelcomePage.Core", "WelcomePage.Core.Server", false,
+                                               BindingFlags.CreateInstance, null, new object[] { url, rootDirectory },
+                                               null, null);
+            server.Start();
             Console.WriteLine("Nancy host listening on '{0}'. Press Ctrl+C to quit.", url);
 
             if (openBrowser)
                 Process.Start(url.ToString());
 
             stop.WaitOne();
-
-            host.Stop();
+            server.Stop();
         }
     }
 }

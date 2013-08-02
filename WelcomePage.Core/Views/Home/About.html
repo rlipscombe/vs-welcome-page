@@ -13,5 +13,13 @@
         <p>For more details, see <a href="http://github.com/rlipscombe/vs-welcome-page">http://github.com/rlipscombe/vs-welcome-page</a></p>
     
         <p><i>WelcomePage version @Model.Version</i></p>
+        
+        <h3>@Model.AppDomain</h3>
+        <table>
+            @Each.Assemblies
+            <tr><td>@Current</td></tr>
+            @EndEach
+        </table>
+
     </body>
 </html>

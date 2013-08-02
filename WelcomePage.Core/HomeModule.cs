@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using MarkdownDeep;
 using Nancy;
@@ -18,11 +20,11 @@ namespace WelcomePage.Core
         private Negotiator GetAbout()
         {
             var processId = Process.GetCurrentProcess().Id;
-            var location = Assembly.GetExecutingAssembly().Location;
-            var informationalVersion =
-                Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            var version =
-                Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>();
+            var assembly = Assembly.GetExecutingAssembly();
+
+            var location = assembly.Location;
+            var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            var version = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
             var model =
                 new
                     {
@@ -31,7 +33,9 @@ namespace WelcomePage.Core
                         Version =
                             informationalVersion != null
                                 ? informationalVersion.InformationalVersion
-                                : version.Version
+                                : version.Version,
+                        AppDomain = AppDomain.CurrentDomain.FriendlyName,
+                        Assemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.FullName).ToArray()
                     };
             return View["About", model];
         }
