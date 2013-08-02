@@ -142,7 +142,7 @@
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SolutionFolderWrapper.cs" />
-    <Compile Include="WebServer.cs" />
+    <Compile Include="ExternalProcessWebServer.cs" />
     <Compile Include="WelcomePageImpl.cs" />
     <Compile Include="WelcomePagePackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

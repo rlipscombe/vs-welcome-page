@@ -5,7 +5,7 @@ using System.IO.Compression;
 
 namespace RogerLipscombe.WelcomePage
 {
-    public sealed class WebServer : MarshalByRefObject, IWebServer
+    public sealed class ExternalProcessWebServer : IWebServer
     {
         private Process _process;
 

@@ -42,7 +42,7 @@ namespace RogerLipscombe.WelcomePage
             var itemOperations = new ItemOperationsWrapper(dte);
             var solutionFolderWrapper = new SolutionFolderWrapper(dte);
             var defaultDocumentPolicy = new DefaultDocumentPolicy();
-            var server = new WebServer();
+            var server = new ExternalProcessWebServer();
             _impl = new WelcomePageImpl(solutionFolderWrapper, defaultDocumentPolicy, itemOperations, server);
         }
 
