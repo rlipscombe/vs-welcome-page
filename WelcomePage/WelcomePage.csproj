@@ -131,6 +131,7 @@
     </Compile>
     <Compile Include="GuidList.cs" />
     <Compile Include="IItemOperations.cs" />
+    <Compile Include="InProcessWebServer.cs" />
     <Compile Include="ISolutionFolder.cs" />
     <Compile Include="ItemOperationsWrapper.cs" />
     <Compile Include="IWebServer.cs" />
@@ -181,6 +182,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Images.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WelcomePage.Core\WelcomePage.Core.csproj">
+      <Project>{D65A8005-CA98-4A6A-9645-58CEB9604C68}</Project>
+      <Name>WelcomePage.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>

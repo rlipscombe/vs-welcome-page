@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using WelcomePage.Core;
@@ -16,7 +17,8 @@ namespace WelcomePage.WebServer
                 Console.WriteLine(@"  WelcomePage.WebServer url root-directory [-open]");
                 Console.WriteLine();
                 Console.WriteLine(@"Example:");
-                Console.WriteLine(@"  WelcomePage.WebServer http://localhost:12540 C:\Users\roger\Source\vs-welcome-page\WelcomePage_UnitTests\Samples -open");
+                Console.WriteLine(
+                    @"  WelcomePage.WebServer http://localhost:12540 C:\Users\roger\Source\vs-welcome-page\WelcomePage_UnitTests\Samples -open");
                 return;
             }
 
@@ -34,12 +36,13 @@ namespace WelcomePage.WebServer
                     e.Cancel = true;
                 };
 
-            var domain = AppDomain.CreateDomain("WelcomePage.WebServer");
-            var server =
-                (IServer)
-                domain.CreateInstanceAndUnwrap("WelcomePage.Core", "WelcomePage.Core.Server", false,
-                                               BindingFlags.CreateInstance, null, new object[] { url, rootDirectory },
-                                               null, null);
+            var info = AppDomain.CurrentDomain.SetupInformation;
+
+            var applicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            info.ApplicationBase = applicationBase;
+            var domain = AppDomain.CreateDomain("WelcomePage.WebServer", null, info);
+            var server = domain.CreateInstanceAndUnwrap<IServer>("WelcomePage.Core", "WelcomePage.Core.Server",
+                                                                 new object[] { url, rootDirectory });
             server.Start();
             Console.WriteLine("Nancy host listening on '{0}'. Press Ctrl+C to quit.", url);
 

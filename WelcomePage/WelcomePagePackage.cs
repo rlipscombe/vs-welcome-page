@@ -42,7 +42,7 @@ namespace RogerLipscombe.WelcomePage
             var itemOperations = new ItemOperationsWrapper(dte);
             var solutionFolderWrapper = new SolutionFolderWrapper(dte);
             var defaultDocumentPolicy = new DefaultDocumentPolicy();
-            var server = new ExternalProcessWebServer();
+            var server = new InProcessWebServer();
             _impl = new WelcomePageImpl(solutionFolderWrapper, defaultDocumentPolicy, itemOperations, server);
         }
 
@@ -70,22 +70,10 @@ namespace RogerLipscombe.WelcomePage
             mcs.AddCommand(menuItem);
         }
 
-        private void OnViewWelcomePage()
-        {
-            try
-            {
-                _impl.OnViewWelcomePage();
-            }
-            catch (Exception ex)
-            {
-                ShowMessageBox("WelcomePage", ex.Message);
-            }
-        }
-
         private void ShowMessageBox(string pszTitle, string pszText)
         {
-            IVsUIShell uiShell = (IVsUIShell) GetService(typeof (SVsUIShell));
-            Guid clsid = Guid.Empty;
+            var uiShell = (IVsUIShell) GetService(typeof (SVsUIShell));
+            var clsid = Guid.Empty;
             int result;
             ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
                 0,
@@ -99,6 +87,11 @@ namespace RogerLipscombe.WelcomePage
                 OLEMSGICON.OLEMSGICON_INFO,
                 0, // false
                 out result));
+        }
+
+        private void OnViewWelcomePage()
+        {
+            Try(() => _impl.OnViewWelcomePage());
         }
 
         public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
@@ -133,14 +126,8 @@ namespace RogerLipscombe.WelcomePage
 
         public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
         {
-            try
-            {
-                _impl.OnAfterOpenSolution();
-            }
-            catch (Exception ex)
-            {
-                ShowMessageBox("WelcomePage", ex.Message);
-            }
+            Try(() => _impl.OnAfterOpenSolution());
+
             return VSConstants.S_OK;
         }
 
@@ -160,6 +147,22 @@ namespace RogerLipscombe.WelcomePage
 
             // TODO: If the web browser is open, and pointing at the readme, close the window.
             return VSConstants.S_OK;
+        }
+
+        private void Try(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                ShowMessageBox("WelcomePage", ex.ToString());
+#else
+                ShowMessageBox("WelcomePage", ex.Message);
+#endif
+            }
         }
     }
 

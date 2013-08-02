@@ -3,7 +3,7 @@ using Nancy.Hosting.Self;
 
 namespace WelcomePage.Core
 {
-    internal class Server : MarshalByRefObject, IServer
+    public class Server : MarshalByRefObject, IServer
     {
         private readonly Uri _url;
         private readonly string _rootDirectory;
@@ -28,11 +28,10 @@ namespace WelcomePage.Core
         {
             _host.Stop();
         }
-    }
 
-    public interface IServer
-    {
-        void Start();
-        void Stop();
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }
