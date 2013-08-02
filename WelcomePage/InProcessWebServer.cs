@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Security.Policy;
 using WelcomePage.Core;
 
 namespace RogerLipscombe.WelcomePage
@@ -17,13 +18,18 @@ namespace RogerLipscombe.WelcomePage
         public void Start(Uri url, string rootFolder)
         {
             var applicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var info = new AppDomainSetup { ApplicationBase = applicationBase };
+            //var info = AppDomain.CurrentDomain.SetupInformation;
+            var info = new AppDomainSetup();
+            info.ApplicationBase = applicationBase;
 
             var domain = AppDomain.CreateDomain("WelcomePage.WebServer", null, info);
-            var oh = domain.CreateInstance("WelcomePage.Core", "WelcomePage.Core.Server", false, BindingFlags.CreateInstance, null,
-                                           new object[] { url, rootFolder }, null, null);
-            _server = (IServer) oh.Unwrap();
-//            _server = domain.CreateInstanceAndUnwrap<IServer>("WelcomePage.Core", "WelcomePage.Core.Server", new object[] { url, rootFolder });
+            _server = (IServer) domain.CreateInstanceAndUnwrap(
+                "WelcomePage.Core", "WelcomePage.Core.Server",
+                false,
+                BindingFlags.Instance| BindingFlags.Public | BindingFlags.CreateInstance,
+                null,
+                new object[] { url, rootFolder },
+                null, null);
             _server.Start();
         }
 

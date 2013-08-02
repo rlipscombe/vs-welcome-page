@@ -51,7 +51,6 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="AppDomainExtensions.cs" />
     <Compile Include="AttributeExtensions.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="DefaultDocumentNotFoundException.cs" />

@@ -41,8 +41,11 @@ namespace WelcomePage.WebServer
             var applicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             info.ApplicationBase = applicationBase;
             var domain = AppDomain.CreateDomain("WelcomePage.WebServer", null, info);
-            var server = domain.CreateInstanceAndUnwrap<IServer>("WelcomePage.Core", "WelcomePage.Core.Server",
-                                                                 new object[] { url, rootDirectory });
+            var server = (IServer) domain.CreateInstanceAndUnwrap(
+                "WelcomePage.Core", "WelcomePage.Core.Server", false, BindingFlags.Public,
+                null,
+                new object[] { url, rootDirectory },
+                null, null);
             server.Start();
             Console.WriteLine("Nancy host listening on '{0}'. Press Ctrl+C to quit.", url);
 
