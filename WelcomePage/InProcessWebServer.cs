@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Security.Policy;
 using WelcomePage.Core;
 
 namespace RogerLipscombe.WelcomePage
@@ -17,12 +16,20 @@ namespace RogerLipscombe.WelcomePage
 
         public void Start(Uri url, string rootFolder)
         {
-            var applicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            //var info = AppDomain.CurrentDomain.SetupInformation;
-            var info = new AppDomainSetup();
-            info.ApplicationBase = applicationBase;
+            if (_server != null)
+                return;
 
-            var domain = AppDomain.CreateDomain("WelcomePage.WebServer", null, info);
+            const string appDomainFriendlyName = "WelcomePage.WebServer";
+            var applicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var info = new AppDomainSetup
+                {
+                    ApplicationName = appDomainFriendlyName,
+                    ApplicationBase = applicationBase
+                };
+
+            var domain = AppDomain.CreateDomain(appDomainFriendlyName, null, info);
+            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+
             _server = (IServer) domain.CreateInstanceAndUnwrap(
                 "WelcomePage.Core", "WelcomePage.Core.Server",
                 false,
@@ -33,9 +40,19 @@ namespace RogerLipscombe.WelcomePage
             _server.Start();
         }
 
+        /// <summary>
+        /// See http://www.west-wind.com/weblog/posts/2009/Jan/19/Assembly-Loading-across-AppDomains
+        /// ...except that, it turns out, we didn't need all of that.
+        /// </summary>
+        private Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            return Assembly.Load(args.Name);
+        }
+
         public void Stop()
         {
-            _server.Stop();
+            if (_server != null)
+                _server.Stop();
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Remoting;
 using Nancy.Hosting.Self;
 
 namespace WelcomePage.Core
@@ -28,16 +27,6 @@ namespace WelcomePage.Core
         public void Stop()
         {
             _host.Stop();
-        }
-
-        public override ObjRef CreateObjRef(Type requestedType)
-        {
-            return base.CreateObjRef(requestedType);
-        }
-
-        public override object InitializeLifetimeService()
-        {
-            return base.InitializeLifetimeService();
         }
     }
 }
