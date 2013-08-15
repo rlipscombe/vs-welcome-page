@@ -2,6 +2,12 @@
 {
     public interface IDocumentFolder
     {
-        string ReadAllText(string name);
+        bool Exists(string name);
+        IDocumentFile Open(string name);
+    }
+
+    public interface IDocumentFile
+    {
+        string ReadAllText();
     }
 }

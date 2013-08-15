@@ -12,7 +12,7 @@ namespace WelcomePage.Core
     {
         public HomeModule(IDocumentFolder documentFolder)
         {
-            Get["/"] = x => GetDocument(documentFolder, "README");
+            Get["/"] = x => GetDefaultDocument(documentFolder);
             Get["/{path*}"] = x => GetDocument(documentFolder, (string)x.Path);
             Get["/_About"] = x => GetAbout();
         }
@@ -40,9 +40,15 @@ namespace WelcomePage.Core
             return View["About", model];
         }
 
+        private Negotiator GetDefaultDocument(IDocumentFolder documentFolder)
+        {
+            return GetDocument(documentFolder, "README");
+        }
+
         private Negotiator GetDocument(IDocumentFolder documentFolder, string path)
         {
-            var markdown = documentFolder.ReadAllText(path);
+            var file = documentFolder.Open(path);
+            var markdown = file.ReadAllText();
             var converter = new Markdown();
             var html = converter.Transform(markdown);
             return View["Index", new { Title = path, Content = html }];

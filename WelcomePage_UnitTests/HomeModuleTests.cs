@@ -13,8 +13,10 @@ namespace WelcomePage_UnitTests
         public void HomePage()
         {
             // Arrange
-            var documentFolder = new Mock<IDocumentFolder>();
-            documentFolder.Setup(x => x.ReadAllText("README")).Returns("Hello\r\n==\r\nWorld");
+            var readme = new Mock<IDocumentFile>(MockBehavior.Strict);
+            var documentFolder = new Mock<IDocumentFolder>(MockBehavior.Strict);
+            documentFolder.Setup(x => x.Open("README")).Returns(readme.Object);
+            readme.Setup(x => x.ReadAllText()).Returns("Hello\r\n==\r\nWorld");
             var browser =
                 new Browser(
                     with => with.Module(new HomeModule(documentFolder.Object)));
@@ -35,8 +37,10 @@ namespace WelcomePage_UnitTests
         public void OtherPage()
         {
             // Arrange
-            var documentFolder = new Mock<IDocumentFolder>();
-            documentFolder.Setup(x => x.ReadAllText("README")).Returns("Hello\r\n==\r\nWorld");
+            var page = new Mock<IDocumentFile>(MockBehavior.Strict);
+            var documentFolder = new Mock<IDocumentFolder>(MockBehavior.Strict);
+            documentFolder.Setup(x => x.Open(It.IsAny<string>())).Returns(page.Object);
+            page.Setup(x => x.ReadAllText()).Returns("Hello\r\n==\r\nWorld");
             var browser =
                 new Browser(
                     with => with.Module(new HomeModule(documentFolder.Object)));

@@ -11,9 +11,15 @@ namespace WelcomePage.Core
             _rootDirectory = rootDirectory;
         }
 
-        public string ReadAllText(string name)
+        public bool Exists(string name)
         {
-            return File.ReadAllText(Path.Combine(_rootDirectory, name + ".md"));
+            throw new System.NotImplementedException();
+        }
+
+        public IDocumentFile Open(string name)
+        {
+            var path = Path.Combine(_rootDirectory, name + ".md");
+            return new DocumentFile(path);
         }
     }
 }

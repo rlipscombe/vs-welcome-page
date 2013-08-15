@@ -54,6 +54,7 @@
     <Compile Include="AttributeExtensions.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="DefaultDocumentNotFoundException.cs" />
+    <Compile Include="DocumentFile.cs" />
     <Compile Include="DocumentRenderer.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="HomeModule.cs" />
